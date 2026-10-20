@@ -82,4 +82,96 @@ Because this is currently a static site, you can open `index.html` directly for 
 
 ---
 
+BUSH SLAP — Project Direction & Continuity Guide
+Purpose: This document is the source of truth for the game's direction. Read it before changing visuals, gameplay, architecture, or generating art. Do not drift into a different game, character, or visual style.
+1. Project vision
+Bush Slap is a fast, funny, browser-based reflex game: rabbits pop out of voxel bushes and the player taps/clicks them to score. Difficulty and speed increase naturally as the run continues. The game should feel polished, instantly understandable, replayable, and responsive across devices.
+Core slogan: TAP. SLAP. REPEAT.
+2. Non-negotiable visual identity
+Main character
+Preserve the same white, blocky Minecraft-inspired rabbit shown in the reference art.
+Key features: square/voxel head and body, tall upright ears with pink inner ears, large dark pixel-like eyes, small pink nose, expressive friendly face.
+Keep the rabbit recognizable and consistent across the hero art, gameplay, icons, sprites, loading screens, and future generated assets.
+Do not replace it with a realistic rabbit, a smooth 3D cartoon bunny, or another animal.
+Other skins (gray, brown, ninja, golden, etc.) are optional variants of the same basic voxel rabbit silhouette—not replacements for the main character.
+Environment and gameplay viewpoint
+Bright, lush Minecraft-like voxel world: cubic bushes, blocky grass, stone ruins/arches, waterfalls, trees, and colorful distant scenery.
+First-person player hand/glove can enter from the lower-right or foreground during the slap action.
+Rabbits emerge from bushes; clear targets and impact feedback are essential for gameplay readability.
+Art style: Minecraft × Spider-Verse-inspired comic energy
+Combine:
+Minecraft/voxel construction for characters, plants, props, and environments.
+Spider-Verse-inspired graphic-novel energy for presentation: thick ink-like outlines, halftone/grain textures, exaggerated motion streaks, punchy comic impact shapes, dramatic contrast, saturated cyan/blue and hot-pink lighting.
+Bold yellow comic “SLAP!” impact lettering, with black outline and energetic jagged burst.
+Hot pink, electric cyan, deep navy/black, vivid green, and bright yellow accents.
+The voxel content must remain visibly blocky. Comic effects should enhance it rather than turn the game into a flat comic or realistic scene. Avoid copying Spider-Man or other protected characters; the reference means a broad comic/anime visual influence only.
+UI style
+Dark navy/near-black panels with crisp cyan or magenta borders.
+Hot-pink primary buttons; green can signal play-again/success; yellow for scores and rewards.
+Bold brush/comic headline typography paired with highly readable UI text.
+Strong contrast and clear hierarchy. Avoid cluttering the actual play area with unnecessary panels.
+Mobile layouts should stack cleanly; desktop can use a wider hero/gameplay plus leaderboard layout.
+3. Reference art
+The files in docs/art-references/ are the user-provided visual references. Treat them as the canonical art-direction reference set:
+01-rabbit-slap-key-art.png — main rabbit, bush, first-person hand, world, and “SLAP!” effect.
+02-full-website-and-asset-board.png — overall visual language and full-page layout/asset-board reference.
+03-game-screens-and-character-skins.png — menu, gameplay, game-over, skin, background, and UI inspiration.
+04-website-layout-reference.png — alternate landing-page, gameplay, leaderboard, account, and player-card layout.
+These are concept references, not finished production assets. Rebuild UI and gameplay as real responsive components; do not use a single screenshot as the entire website.
+4. Gameplay requirements
+Main loop: rabbits pop up from bushes; player taps/clicks (or uses a supported input) to slap them and earn score.
+Increase challenge over time through spawn timing, target movement, and/or reaction windows. Do not show a level number on the gameplay screen; difficulty should progress invisibly.
+Include score, personal best, combo feedback, pause/resume, lives or an equivalent fail condition, game-over, and quick restart.
+Feedback should feel immediate: brief screen/target reaction, comic burst, and optional sound/haptics where supported.
+Avoid unfair targets, accidental taps, and UI controls that block the action area.
+Support mouse, touch, and keyboard where practical. Make the core game playable without requiring an account.
+5. Platform and responsive goals
+Target modern browsers on:
+Android and iOS phones
+Tablets
+Windows, macOS, and Linux computers
+Android TV / Apple TV browsers where practical
+Other modern browser-based devices
+Use responsive layout and scalable input targets. Do not claim a platform is fully supported until tested on it. TV/remote navigation may require a dedicated focus and keyboard/remote input pass.
+6. Accounts, progress, and leaderboard
+Intended features:
+Optional sign-up/login
+Saved personal best and game progress
+Player profile/stats
+Global and friends leaderboard views
+Rabbit skins, backgrounds, achievements/rewards, and settings
+Do not fake backend persistence. If authentication, cloud saves, or global leaderboard infrastructure is not connected, label the feature as a demo/local feature or implement the backend before presenting it as live. Never commit secrets, API keys, or passwords.
+7. Engineering rules
+Inspect the actual repository and current code before editing. Preserve working features and the established stack unless a change is necessary.
+Prefer small, testable changes over replacing the whole project.
+Keep gameplay logic separate from presentation where reasonable.
+Keep images/assets optimized for the web and provide fallbacks.
+Respect reduced-motion preferences and provide accessible labels/focus states.
+Test build, keyboard/touch interactions, responsive layouts, and error states before claiming a feature is complete.
+Never invent deployment URLs, pretend a build passed, or claim a feature works without verification.
+Do not put secrets in source code or commit them to GitHub.
+8. Art generation brief
+Whenever generating or commissioning new art, use this brief:
+A friendly, expressive white Minecraft-inspired voxel rabbit with upright pink-lined ears, square head/body, and large dark pixel-like eyes, popping out of vivid cubic green bushes in a lush block-built fantasy ruin/forest. A first-person gloved hand reaches from the foreground during a slap. Bold yellow “SLAP!” comic impact lettering, jagged black ink outline, motion streaks, halftone textures, energetic graphic-novel/anime lighting inspired by Spider-Verse, saturated cyan/blue and hot-pink accents, crisp voxel geometry, high contrast, polished game key art. Keep the rabbit's design consistent with the supplied Bush Slap references. No Spider-Man or other copyrighted superhero characters, no realistic rabbit, no smooth generic cartoon replacement.
+Adapt framing for each use (hero banner, transparent sprite, background, icon, or game-over panel), but do not change the core character or style.
+9. Current-state honesty
+This README describes the intended product and direction; it does not prove every listed feature is implemented. Check the code and test the deployed site to determine the current implementation status. Document unfinished features and limitations honestly.
+10. Change checklist
+Before accepting a major change, confirm:
+[ ]
+The main rabbit still matches the reference.
+[ ]
+The voxel/Minecraft environment remains obvious.
+[ ]
+Comic-book/Spider-Verse-inspired effects complement, not replace, the voxel art.
+[ ]
+Gameplay difficulty increases without showing a level number.
+[ ]
+Mobile and desktop layouts remain usable.
+[ ]
+Existing working functionality was not accidentally removed.
+[ ]
+No secrets or unsupported claims were added.
+
+
 **Remember:** Bush Slap is not just any rabbit tapping game. Its signature is the white voxel rabbit, lush cubic bushes, first-person slap, comic-book impact art, and **TAP. SLAP. REPEAT.**
