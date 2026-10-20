@@ -1,4 +1,4 @@
-const CACHE = "bush-slap-v1";
+const CACHE = "bush-slap-v2";
 const CORE = ["/", "/index.html", "/manifest.json"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
