@@ -212,31 +212,36 @@ function init3d(){
    }
    // Warm sun disk adds a readable focal point to the distant sky.
    const sunDisk=new THREE.Mesh(new THREE.BoxGeometry(1.15,1.15,.12),new THREE.MeshBasicMaterial({color:environment==='sunset'?'#ffb66e':'#fff0b0'}));sunDisk.position.set(-5.7,6.8,-30);world3d.add(sunDisk);
-   // Color-rich voxel canopy: layered jewel-tone trees, crystal flowers and lantern arches.
-   // Deep-green Minecraft canopy: layered leaf cubes with highlights, shadows and pixel clusters.
-   const canopyColors=['#176b32','#21883b','#2da847','#38bd4e','#54d957','#78e34d','#9be85a','#12602e','#2e9c3f'];
-   const canopyShade=['#104b2b','#175d30','#1b7135','#21863a'];
+   // Redesigned trees: no giant single-square canopy; crowns are sculpted from many small voxel leaf blocks.
+   const leafPalette=['#145c2b','#1b7134','#238b3d','#2fa849','#3dbb4d','#55ce53','#76df59','#9bea65','#b2ee78','#0e4a27'];
+   const branchPalette=['#583824','#70452b','#855536'];
    for(let i=0;i<26;i++){
     const side=i%2===0?-1:1,z=-1-(i*1.34),x=side*(4.45+(i%5)*.58),tree=new THREE.Group();
     tree.position.set(x,0,z);tree.userData.swayPhase=i*.61;tree.userData.canopy=true;tree.userData.canopyBaseY=0;
-    const trunk=['#68432c','#805033','#553c2b'][i%3];box(tree,.38,1.65,.38,trunk,0,.78,0);
-    // Main crown: five overlapping cube layers, mostly green with a darker underside.
-    box(tree,1.48,.68,1.18,canopyShade[i%canopyShade.length],0,1.55,0);
-    box(tree,1.36,.58,1.12,canopyColors[i%canopyColors.length],0,1.84,.015);
-    box(tree,1.02,.58,.96,canopyColors[(i+2)%canopyColors.length],-.25,2.18,.06);
-    box(tree,.82,.48,.78,canopyColors[(i+4)%canopyColors.length],.27,2.43,-.02);
-    box(tree,.46,.36,.48,canopyColors[(i+5)%canopyColors.length],-.02,2.77,-.04);
-    // Small leaf pixels build a jagged, chunky canopy silhouette.
-    for(let p=0;p<21;p++){
-     const px=((p%5)-2)*.25+(Math.floor(p/5)%2)*.08,py=1.48+Math.floor(p/5)*.25,pz=(p%3)*.18+.22;
-     box(tree,.2,.19,.2,canopyColors[(i+p*2)%canopyColors.length],px,py,pz);
+    // Trunk assembled from stacked bark cubes with visible branching.
+    box(tree,.34,.68,.34,branchPalette[i%3],0,.34,0);
+    box(tree,.3,.62,.3,branchPalette[(i+1)%3],.02,.91,0);
+    box(tree,.26,.48,.26,branchPalette[i%3],-.03,1.43,0);
+    box(tree,.18,.58,.18,branchPalette[(i+2)%3],-.38,1.55,0);
+    box(tree,.18,.52,.18,branchPalette[i%3],.35,1.68,-.02);
+    // Irregular stepped crown clusters replace the single slab silhouette.
+    const clusters=[[-.52,1.75,0],[-.18,1.9,.08],[.2,1.86,0],[.52,1.78,-.02],[-.62,2.12,.04],[-.3,2.25,.12],[.06,2.22,.08],[.42,2.18,.02],[.64,2.05,-.02],[-.43,2.48,.02],[-.08,2.58,.06],[.27,2.48,0],[.02,2.82,-.02]];
+    for(let c=0;c<clusters.length;c++){
+     const [cx,cy,cz]=clusters[c],base=leafPalette[(i+c*2)%leafPalette.length];
+     box(tree,.38,.34,.36,base,cx,cy,cz);
+     box(tree,.19,.18,.19,leafPalette[(i+c*3+3)%leafPalette.length],cx-.15,cy+.14,cz+.19);
+     if(c%2===0)box(tree,.18,.17,.18,leafPalette[(i+c+5)%leafPalette.length],cx+.17,cy-.08,cz-.14);
+     if(c%3===0)box(tree,.16,.16,.16,'#0e4a27',cx+.19,cy-.13,cz+.12);
     }
-    // Bright sunlit leaf pixels on the front, contrasted by dark green edge blocks.
-    for(let p=0;p<4;p++)box(tree,.14,.13,.12,['#a4f06b','#83e85b','#c0f58a','#62d94c'][(i+p)%4],-.42+(p%2)*.58,1.9+Math.floor(p/2)*.34,.59);
-    box(tree,.18,.15,.14,'#0e5128',-.64,1.52,.28);box(tree,.18,.15,.14,'#0e5128',.63,1.7,.22);
-    // A few restrained flower/fruit pixels for variety without losing the green identity.
-    if(i%4===0)box(tree,.13,.13,.13,'#ffcf54',.28,2.05,.62);
-    if(i%5===0)box(tree,.12,.12,.12,'#ff7aa8',-.25,2.3,.54);
+    // Extra leaf pixels create jagged edges and visible depth from the road.
+    for(let p=0;p<18;p++){
+     const angle=(p/18)*Math.PI*2,ring=p%3;
+     const px=Math.cos(angle)*(.48+ring*.08),py=1.95+Math.sin(angle*2)*.32+(p%4)*.11,pz=Math.sin(angle)*.35+.1;
+     box(tree,.19,.18,.19,leafPalette[(i+p*2+1)%leafPalette.length],px,py,pz);
+    }
+    for(let p=0;p<5;p++)box(tree,.11,.11,.1,['#b7f47b','#8de967','#d0f89a','#64d95b','#fff0a1'][(i+p)%5],-.34+(p%3)*.31,2.02+Math.floor(p/3)*.31,.38);
+    if(i%5===0)box(tree,.12,.12,.12,'#ffcf54',.25,2.22,.32);
+    if(i%7===0)box(tree,.12,.12,.12,'#ff7aa8',-.21,2.47,.29);
     world3d.add(tree);worldProps3d.push(tree);
    }
    // Floating, colorful pixel crystals in the far sky; all are lightweight meshes.
