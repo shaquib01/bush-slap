@@ -16,7 +16,7 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 - Mouse and touch input with a raycast hit target, plus keyboard controls: Space slaps toward the centre of the screen and Enter starts/restarts a round.
 - Score, combo, timer and round restart.
 - Camera-attached blocky first-person hand with a three-beat slap swing animation.
-- Rabbit pop-in entrance, hop bounce and independently swaying ears, plus comic-style SLAP/POW/BONK hit lettering, colorful voxel burst particles, and a brief camera jolt on a successful hit.
+- Rabbit pop-in entrance, gentle side-to-side / forward-back movement, hop bounce and independently swaying ears, plus comic-style SLAP/POW/BONK hit lettering, colorful voxel burst particles, and a brief camera jolt on a successful hit.
 - Slightly more forgiving rabbit hitbox and longer appearance window to improve touch play.
 - More readable target bushes with bright leaf/berry pixels, foreground stones, and small trail markers.
 - Responsive HUD that reduces score, timer, combo, prompt and overlay sizing on narrow viewports and updates when the viewport changes.
