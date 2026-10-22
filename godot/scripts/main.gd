@@ -438,6 +438,13 @@ func _spawn_rabbit() -> void:
 	_add_box(rabbit_visual, Vector3(-0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
 	_add_box(rabbit_visual, Vector3(0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
 	_add_box(rabbit_visual, Vector3(0, 1.34, -0.43), Vector3(0.18, 0.12, 0.06), Color(0.94, 0.43, 0.61))
+	# Tiny square blush, brows, and teeth give the rabbit more readable comic-book expression.
+	_add_box(rabbit_visual, Vector3(-0.39, 1.36, -0.405), Vector3(0.14, 0.09, 0.035), Color(1.0, 0.61, 0.70))
+	_add_box(rabbit_visual, Vector3(0.39, 1.36, -0.405), Vector3(0.14, 0.09, 0.035), Color(1.0, 0.61, 0.70))
+	_add_box(rabbit_visual, Vector3(-0.25, 1.72, -0.405), Vector3(0.20, 0.055, 0.045), Color(0.79, 0.76, 0.78))
+	_add_box(rabbit_visual, Vector3(0.25, 1.72, -0.405), Vector3(0.20, 0.055, 0.045), Color(0.79, 0.76, 0.78))
+	_add_box(rabbit_visual, Vector3(-0.055, 1.22, -0.445), Vector3(0.07, 0.08, 0.035), Color(1.0, 1.0, 1.0))
+	_add_box(rabbit_visual, Vector3(0.055, 1.22, -0.445), Vector3(0.07, 0.08, 0.035), Color(1.0, 1.0, 1.0))
 	# Small block highlights make the face readable at a glance, even on a phone.
 	_add_box(rabbit_visual, Vector3(-0.28, 1.59, -0.425), Vector3(0.045, 0.045, 0.025), Color(1.0, 1.0, 1.0))
 	_add_box(rabbit_visual, Vector3(0.22, 1.59, -0.425), Vector3(0.045, 0.045, 0.025), Color(1.0, 1.0, 1.0))
