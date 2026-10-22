@@ -137,10 +137,11 @@ func _build_world() -> void:
 		_make_bush(p)
 		_make_bush_accents(p)
 	# Pixel flowers and stones add detail to the foreground.
+	var flower_colors: Array[Color] = [Color(1.0, 0.75, 0.20), Color(1.0, 0.45, 0.68), Color(0.88, 0.94, 0.66)]
 	for i in range(34):
 		var x := rng.randf_range(-7.0, 7.0)
 		var z := rng.randf_range(2.0, 6.5)
-		var col := [Color(1.0, 0.75, 0.20), Color(1.0, 0.45, 0.68), Color(0.88, 0.94, 0.66)][i % 3]
+		var col: Color = flower_colors[i % flower_colors.size()]
 		_add_box(world_root, Vector3(x, 0.02, z), Vector3(0.12, 0.12, 0.12), col)
 		if i % 3 == 0:
 			_add_box(world_root, Vector3(x + 0.13, 0.015, z + 0.08), Vector3(0.20, 0.06, 0.14), Color(0.48, 0.49, 0.43))
