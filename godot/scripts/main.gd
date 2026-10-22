@@ -258,6 +258,7 @@ func _try_slap(screen_pos: Vector2) -> void:
 	var direction := camera.project_ray_normal(screen_pos)
 	var query := PhysicsRayQueryParameters3D.create(from, from + direction * 100.0)
 	query.collision_mask = 1
+	query.collide_with_areas = true
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty() and rabbit and is_instance_valid(rabbit) and hit.collider == rabbit:
 		score += 100 + combo * 15
