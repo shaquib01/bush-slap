@@ -1,4 +1,4 @@
-const CACHE = "bush-slap-v5";
+const CACHE = "bush-slap-v6";
 const CORE = [
   "/",
   "/index.html",
