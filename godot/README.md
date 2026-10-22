@@ -15,9 +15,9 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 - Blocky white rabbit with upright pink ears, visible feet, paw pads, eye highlights, a pixel tail and a small forelock.
 - Mouse and touch input with a raycast hit target, plus keyboard controls: Space slaps toward the centre of the screen and Enter starts/restarts a round.
 - Score, combo, timer and round restart.
-- Camera-attached blocky first-person hand with a three-beat slap swing animation.
+- Camera-attached blocky first-person hand with a three-beat slap swing animation and subtle idle breathing/rotation when not swinging.
 - Rabbit pop-in entrance, gentle side-to-side / forward-back movement and independently swaying ears.
-- Comic-style SLAP/POW/BONK hit lettering, floating +points popups, colorful voxel burst particles, brief camera jolt on a successful hit, and red MISS! cue on missed taps.
+- Comic-style SLAP/POW/BONK hit lettering, floating +points popups, radial voxel burst particles with rectangular speed-line shards, brief camera jolt on a successful hit, and red MISS! cue on missed taps.
 - Rabbits avoid spawning from the same bush twice consecutively.
 - More readable target bushes with bright leaf/berry pixels, foreground stones and trail markers.
 - Responsive HUD that reduces score, timer, combo, prompt and overlay sizing on narrow viewports and updates when the viewport changes.
@@ -29,7 +29,7 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 
 The GitHub Actions workflow at `.github/workflows/godot-check.yml` runs an editor import check, headless scene smoke test, and Web export. A successful run uploads `bush-slap-godot-web` as a downloadable workflow artifact for 14 days.
 
-A separate workflow, `.github/workflows/deploy-godot-pages.yml`, attempts to publish the prototype to GitHub Pages. **One-time repository setup is required:** open [Settings → Pages](https://github.com/shaquib01/bush-slap/settings/pages), choose **GitHub Actions** under **Build and deployment**, and save. The initial deployment currently fails at the final Pages deployment step because Pages is not enabled for this repository; the Godot browser export and Pages artifact upload themselves succeeded. After enabling Pages, open the [Actions tab](https://github.com/shaquib01/bush-slap/actions) and rerun the failed **Deploy Bush Slap browser preview** workflow, or push a new commit to this branch. Only share a preview URL after a successful deployment and a real browser smoke test.
+A separate workflow, `.github/workflows/deploy-godot-pages.yml`, publishes the prototype to GitHub Pages. The most recent completed deployment for commit `795afebb` succeeded in both the Godot export/deploy workflow and GitHub Pages build/deployment workflow. A newer hand-idle animation commit is currently awaiting final workflow confirmation; check the [Actions tab](https://github.com/shaquib01/bush-slap/actions) for its status. The expected preview URL is https://shaquib01.github.io/bush-slap/, but a green deployment job alone does not prove the game has been tested in a real browser.
 
 ## Current limitations
 
