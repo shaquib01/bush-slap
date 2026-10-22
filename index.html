@@ -27,6 +27,26 @@ footer{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#
 @media(max-width:420px){body{padding:8px}.app{gap:10px}header{align-items:flex-start}.logo{font-size:20px}.tag{font-size:8px}.best{padding:7px 9px}.best strong{font-size:17px}.stats{gap:6px}.stat{padding:8px}.stat small{font-size:8px}.extras{grid-template-columns:1fr}.panel:last-child{grid-column:auto}.hero-copy h2{font-size:34px}.scene{min-height:195px}.micro{font-size:9px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
+
+/* PIXEL ATMOSPHERE UPGRADE 2 — depth, foliage, comic motion */
+:root{--pixel-shadow:#030611;--pixel-cyan:#42f5e9;--pixel-pink:#ff167b;--pixel-lime:#76ff3b}
+.hero,.game{overflow:hidden}
+.hero{background-color:#091328;background-image:radial-gradient(ellipse at 75% 28%,#ff167b20,transparent 29%),radial-gradient(ellipse at 20% 80%,#42f5e927,transparent 38%),linear-gradient(145deg,#080c20,#151741 52%,#07543d)}
+.hero:before{opacity:.62;background-image:repeating-linear-gradient(0deg,transparent 0 3px,#fff08 4px,transparent 5px),repeating-linear-gradient(90deg,transparent 0 23px,#42f5e90b 24px 25px),linear-gradient(120deg,transparent 25%,#42f5e91a 48%,transparent 66%);mix-blend-mode:screen}
+.hero-copy{position:relative;z-index:2}
+.hero-copy:after{content:"";position:absolute;left:clamp(14px,3vw,38px);bottom:12px;width:76px;height:8px;opacity:.7;background:repeating-linear-gradient(90deg,#42f5e9 0 8px,transparent 8px 12px,#ff167b 12px 20px,transparent 20px 24px);filter:drop-shadow(0 0 6px #42f5e9);animation:pixel-scan 2.8s steps(6,end) infinite}
+.scene{isolation:isolate;background-color:#08734e;background-image:radial-gradient(ellipse at 48% 25%,#76ff3b22,transparent 36%),linear-gradient(180deg,#0b2345 0%,#08734e 58%,#063e32 100%)}
+.scene:before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background-image:radial-gradient(#d5fff6aa 1px,transparent 1.8px),radial-gradient(#ffef73aa 1px,transparent 2px);background-size:31px 29px,47px 41px;background-position:4px 9px,17px 3px;opacity:.22;animation:firefly-drift 8s ease-in-out infinite alternate}
+.scene:after{background-image:linear-gradient(180deg,#03061100 48%,#03061166),repeating-linear-gradient(0deg,#03061116 0 1px,transparent 1px 4px),radial-gradient(ellipse at 50% 45%,transparent 35%,#03061177 100%)}
+.game:before{background-image:radial-gradient(#ffffff99 1px,transparent 1.7px),radial-gradient(#42f5e988 1px,transparent 1.8px),linear-gradient(115deg,#42f5e91a,transparent 28%,#ff167b17 72%,transparent);background-size:7px 7px,19px 19px,100% 100%;background-position:0 0,5px 9px,0 0;opacity:.32}
+.gamebar .pill{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.stat{position:relative;overflow:hidden}
+.stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#42f5e9,#7957ff,#ff167b);opacity:.85}
+@keyframes pixel-scan{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(12px);opacity:1}}
+@keyframes firefly-drift{0%{transform:translate3d(0,0,0);opacity:.12}100%{transform:translate3d(-5px,-8px,0);opacity:.32}}
+@media(prefers-reduced-motion:reduce){.hero-copy:after,.scene:before{animation:none!important}}
+@media(max-width:700px){.hero-copy:after{bottom:8px;width:52px}.scene:before{background-size:25px 25px,39px 37px}}
+
 /* BUSH SLAP VISUAL UPGRADE — layered pixel jungle + comic-book lighting */
 :root{--electric:#42f5e9;--violet:#7957ff;--leaf:#76ff3b}
 body{background:radial-gradient(ellipse at 78% 8%,#452477 0,transparent 32%),radial-gradient(ellipse at 12% 48%,#07583f 0,transparent 38%),linear-gradient(145deg,#050711 0%,#0a1230 48%,#071b20 100%)}
