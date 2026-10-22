@@ -72,6 +72,11 @@ func _process(delta: float) -> void:
 			mote.position = origin + Vector3(sin(ambient_time * 0.8 + float(i)) * 0.18, sin(ambient_time * 1.35 + float(i) * 1.7) * 0.16, cos(ambient_time * 0.65 + float(i)) * 0.12)
 			var pulse := 0.75 + 0.25 * sin(ambient_time * 2.0 + float(i))
 			mote.scale = Vector3.ONE * pulse
+	# Subtle first-person idle breathing keeps the foreground hand from feeling static.
+	# The slap tween owns the hand while swinging, so these offsets never fight the impact animation.
+	if slap_hand and is_instance_valid(slap_hand) and not hand_swinging:
+		slap_hand.position = hand_rest_position + Vector3(0.0, sin(ambient_time * 1.35) * 0.018, 0.0)
+		slap_hand.rotation_degrees = Vector3(-8.0 + sin(ambient_time * 1.1) * 0.7, -16.0, -12.0 + sin(ambient_time * 0.9) * 1.1)
 	if playing:
 		round_time -= delta
 		spawn_timer -= delta
