@@ -100,8 +100,11 @@ function buildRabbit3d(){
  if(rabbit&&rabbit.bonus){const glow=new THREE.PointLight(0xffd83d,2.2,5);glow.position.set(0,2,0);group.add(glow)}
  group.scale.setScalar(.64);group.visible=false;scene3d.add(group);return group
 }
+function show3dStatus(message){const gameBox=c?.parentElement;if(!gameBox)return;let note=gameBox.querySelector('.renderer-warning');if(!note){note=document.createElement('div');note.className='renderer-warning';note.style.cssText='position:absolute;z-index:3;left:8px;right:8px;bottom:8px;padding:7px 9px;border-radius:8px;background:#090f25e8;color:#ffe14a;font:700 11px system-ui;text-align:center;pointer-events:none';gameBox.appendChild(note)}note.textContent=message}
 function init3d(){
- if(!window.THREE||!c3)return false;
+ if(!c3)return false;
+ if(!window.THREE){show3dStatus('3D library failed to load — check connection');return false;}
+ if(!window.WebGLRenderingContext){show3dStatus('WebGL is not supported in this browser');return false;}
  try{
   renderer3d=new THREE.WebGLRenderer({canvas:c3,antialias:false,alpha:false,powerPreference:'low-power',failIfMajorPerformanceCaveat:false});renderer3d.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));renderer3d.setSize(960,540,false);renderer3d.shadowMap.enabled=false;renderer3d.outputColorSpace=THREE.SRGBColorSpace;
   scene3d=new THREE.Scene();scene3d.background=new THREE.Color('#64c8e9');scene3d.fog=new THREE.Fog('#64c8e9',17,43);
@@ -119,7 +122,7 @@ function init3d(){
   box(arms3d,.48,.5,.7,'#243c66',.82,-1.05,-2.15);box(arms3d,.36,.62,.46,'#17243a',.82,-.68,-2.2);box(arms3d,.48,.25,.5,'#ff3c91',.82,-.42,-2.2);
   box(arms3d,.6,.32,.52,'#344d70',.8,-.27,-2.22);box(arms3d,.42,.2,.38,'#e9b18b',.8,-.1,-2.2);
   rabbit3d=buildRabbit3d();resize3d();return true;
- }catch(err){console.warn('3D scene unavailable; using fallback canvas',err);const gameBox=c.parentElement;if(gameBox&&!gameBox.querySelector('.renderer-warning')){const note=document.createElement('div');note.className='renderer-warning';note.textContent='3D mode unavailable on this browser — showing compatibility mode';note.style.cssText='position:absolute;z-index:3;left:8px;right:8px;bottom:8px;padding:7px 9px;border-radius:8px;background:#090f25e8;color:#ffe14a;font:700 11px system-ui;text-align:center;pointer-events:none';gameBox.appendChild(note)}return false}
+ }catch(err){console.warn('3D scene unavailable; using fallback canvas',err);show3dStatus('3D renderer failed to start — showing compatibility mode');return false}
 }
 function resize3d(){if(!renderer3d||!camera3d)return;const r=c.getBoundingClientRect(),w=Math.max(1,Math.round(r.width)),h=Math.max(1,Math.round(r.height));renderer3d.setSize(w,h,false);camera3d.aspect=w/h;camera3d.updateProjectionMatrix()}
 function syncRabbit3d(dt=0){
