@@ -2,8 +2,8 @@ extends Node3D
 ## First playable Godot 4 prototype. Procedural voxel art keeps this prototype asset-free.
 
 const ROUND_SECONDS := 60.0
-const BASE_RABBIT_LIFETIME := 2.65
-const MIN_RABBIT_LIFETIME := 1.55
+const BASE_RABBIT_LIFETIME := 2.85
+const MIN_RABBIT_LIFETIME := 1.80
 const SPAWN_MIN := 0.58
 const SPAWN_MAX := 1.00
 const SAVE_PATH := "user://bush_slap.cfg"
@@ -308,7 +308,7 @@ func _spawn_rabbit() -> void:
 	rabbit.collision_mask = 0
 	var collision := CollisionShape3D.new()
 	var shape := BoxShape3D.new()
-	shape.size = Vector3(1.8, 2.5, 1.3)
+	shape.size = Vector3(2.0, 2.65, 1.45)
 	collision.shape = shape
 	collision.position.y = 1.1
 	rabbit.add_child(collision)
@@ -352,6 +352,7 @@ func _try_slap(screen_pos: Vector2) -> void:
 			_save_best()
 		message_label.text = ["NICE SLAP!", "COMBO!", "BUNNY BONK!", "PERFECT!"][rng.randi_range(0, 3)]
 		_spawn_voxel_burst(rabbit.position + Vector3(0, 1.25, 0))
+		_play_hit_feedback()
 		_show_hit_fx()
 		_remove_rabbit()
 		spawn_timer = 0.35
@@ -363,6 +364,16 @@ func _try_slap(screen_pos: Vector2) -> void:
 func _rabbit_lifetime() -> float:
 	# Gentle, capped difficulty ramp; never becomes a near-impossible twitch test.
 	return maxf(MIN_RABBIT_LIFETIME, BASE_RABBIT_LIFETIME - float(score) / 4200.0)
+
+
+func _play_hit_feedback() -> void:
+	# Brief camera jolt adds impact without permanently shifting the player's view.
+	if camera and is_instance_valid(camera):
+		var base_position := Vector3(0, 5.3, 11.5)
+		var tween := create_tween()
+		tween.tween_property(camera, "position", base_position + Vector3(0.045, -0.035, 0.0), 0.035)
+		tween.tween_property(camera, "position", base_position + Vector3(-0.025, 0.02, 0.0), 0.045)
+		tween.tween_property(camera, "position", base_position, 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _show_hit_fx() -> void:
 	if not hit_fx_label:
