@@ -140,17 +140,25 @@ function projectRabbit(lane,depth){
  const age=rabbit?Math.max(0,elapsed*1000-rabbit.born):400,ease=Math.min(1,age/360),side=rabbit?.entrySide||lane;return{x:center+lane*W*(.28-.13*z)+side*W*.16*(1-ease),y:H*(.77-.14*z)-Math.sin(ease*Math.PI)*H*.035,s:1.1-.35*z}
 }
 
-const c3=document.querySelector('#game3d');let renderer3d=null,scene3d=null,camera3d=null,world3d=null,rabbit3d=null,arms3d=null,road3d=null,roadMarks3d=null,slapThrow3d=null,clock3d=0,worldProps3d=[],ground3d=null,roadSurface3d=null,themeSky3d=null,themeFog3d=null,themeFrom3d=null,themeBlend3d=1,nextSkinAt=9,nextEnvAt=16;const envThemes3d={forest:{sky:'#64c8e9',fog:'#64c8e9',ground:'#24563e',road:'#334656',leaf:['#07513a','#16834b','#4bc943'],rock:'#65736f'},ruins:{sky:'#a6b5c4',fog:'#a6b5c4',ground:'#68665b',road:'#4b515b',leaf:['#3f514a','#68765d','#89916c'],rock:'#888579'},sunset:{sky:'#f79a86',fog:'#f79a86',ground:'#74423e',road:'#493c55',leaf:['#682c49','#b84452','#df654c'],rock:'#7b5a66'}};
+const c3=document.querySelector('#game3d');let renderer3d=null,scene3d=null,camera3d=null,world3d=null,rabbit3d=null,rabbitEarL3d=null,rabbitEarR3d=null,rabbitTail3d=null,arms3d=null,road3d=null,roadMarks3d=null,slapThrow3d=null,clock3d=0,worldProps3d=[],ground3d=null,roadSurface3d=null,themeSky3d=null,themeFog3d=null,themeFrom3d=null,themeBlend3d=1,nextSkinAt=9,nextEnvAt=16;const envThemes3d={forest:{sky:'#64c8e9',fog:'#64c8e9',ground:'#24563e',road:'#334656',leaf:['#07513a','#16834b','#4bc943'],rock:'#65736f'},ruins:{sky:'#a6b5c4',fog:'#a6b5c4',ground:'#68665b',road:'#4b515b',leaf:['#3f514a','#68765d','#89916c'],rock:'#888579'},sunset:{sky:'#f79a86',fog:'#f79a86',ground:'#74423e',road:'#493c55',leaf:['#682c49','#b84452','#df654c'],rock:'#7b5a66'}};
 function mat(color,roughness=.86){return new THREE.MeshStandardMaterial({color,roughness})}
 function box(parent,w,h,d,color,px,py,pz,material=null){const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material||mat(color));mesh.position.set(px,py,pz);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
 function buildRabbit3d(){
  const group=new THREE.Group(),palette={classic:['#fff8ed','#d9d9e0','#ff8fb8','#1c2636'],gray:['#cbd4e4','#8995ad','#8d9bb8','#1c2636'],brown:['#bd8258','#75452f','#75452f','#241a17'],red:['#ff454f','#c51f39','#ff9e9e','#3b1720'],ninja:['#30364b','#171c2c','#ff3c91','#f7f8ff'],golden:['#ffd34e','#c98927','#e99b37','#38251a']}[rabbitSkin]||['#fff8ed','#d9d9e0','#ff8fb8','#1c2636'];
  box(group,.9,.72,.62,palette[0],0,.8,0);box(group,.78,.18,.65,palette[1],0,.49,.02);
  box(group,.72,.68,.62,palette[0],0,1.38,-.02);
- box(group,.24,.82,.2,palette[0],-.25,2.02,0);box(group,.24,.88,.2,palette[0],.25,2.06,0);
- box(group,.12,.53,.065,palette[2],-.25,2.04,.112);box(group,.12,.58,.065,palette[2],.25,2.08,.112);
+ // Pivoted voxel ears: the pink inner pixels stay attached while each ear wiggles independently.
+ rabbitEarL3d=new THREE.Group();rabbitEarL3d.position.set(-.25,1.66,0);group.add(rabbitEarL3d);
+ box(rabbitEarL3d,.24,.82,.2,palette[0],0,.36,0);
+ box(rabbitEarL3d,.12,.53,.065,palette[2],0,.38,.112);
+ rabbitEarR3d=new THREE.Group();rabbitEarR3d.position.set(.25,1.66,0);group.add(rabbitEarR3d);
+ box(rabbitEarR3d,.24,.88,.2,palette[0],0,.4,0);
+ box(rabbitEarR3d,.12,.58,.065,palette[2],0,.42,.112);
  box(group,.14,.15,.075,palette[3],-.18,1.47,.315);box(group,.14,.15,.075,palette[3],.18,1.47,.315);box(group,.045,.045,.025,'#ffffff',-.195,1.505,.36);box(group,.045,.045,.025,'#ffffff',.165,1.505,.36);
- box(group,.12,.09,.08,palette[2],0,1.28,.34);box(group,.2,.09,.1,palette[1],-.53,.77,.02);box(group,.2,.09,.1,palette[1],.53,.77,.02);box(group,.3,.28,.28,palette[1],0,.2,-.02);box(group,.14,.14,.14,'#fff8ed',0,.2,.16);box(group,.08,.08,.08,palette[2],-.04,1.29,.405);box(group,.08,.08,.08,palette[2],.04,1.29,.405);box(group,.25,.08,.12,'#101a2b',-.23,1.48,.365);box(group,.25,.08,.12,'#101a2b',.23,1.48,.365);
+ box(group,.12,.09,.08,palette[2],0,1.28,.34);box(group,.2,.09,.1,palette[1],-.53,.77,.02);box(group,.2,.09,.1,palette[1],.53,.77,.02);box(group,.3,.28,.28,palette[1],0,.2,-.02);
+ rabbitTail3d=new THREE.Group();rabbitTail3d.position.set(0,.56,-.34);group.add(rabbitTail3d);
+ box(rabbitTail3d,.24,.24,.24,'#fff8ed',0,0,0);
+ box(rabbitTail3d,.12,.12,.12,palette[1],.02,.02,-.13);box(group,.14,.14,.14,'#fff8ed',0,.2,.16);box(group,.08,.08,.08,palette[2],-.04,1.29,.405);box(group,.08,.08,.08,palette[2],.04,1.29,.405);box(group,.25,.08,.12,'#101a2b',-.23,1.48,.365);box(group,.25,.08,.12,'#101a2b',.23,1.48,.365);
  if(rabbitSkin==='red'){box(group,.8,.17,.08,'#8e1729',0,1.55,.34);box(group,.16,.12,.08,'#ffe7e7',0,1.31,.39)}if(rabbitSkin==='ninja'){box(group,.8,.17,.08,'#ff167b',0,1.55,.34);box(group,.28,.09,.09,'#f7f8ff',0,1.53,.4)}
  if(rabbitSkin==='golden'){box(group,.22,.08,.09,'#fff1a3',-.22,1.83,.12);box(group,.22,.08,.09,'#fff1a3',.22,1.83,.12)}
  // Extra voxel highlights and cheek pixels keep all skins visually consistent at game scale.
@@ -205,10 +213,13 @@ function resize3d(){if(!renderer3d||!camera3d)return;const r=c.getBoundingClient
 function syncRabbit3d(dt=0){
  if(!rabbit3d||!scene3d)return;
  if(!rabbit){if(slapThrow3d){slapThrow3d.t+=dt/360;rabbit3d.visible=true;rabbit3d.position.x+=slapThrow3d.side*dt/360*5;rabbit3d.position.y+=dt/360*1.8;rabbit3d.rotation.z+=dt/360*slapThrow3d.side*5;rabbit3d.scale.multiplyScalar(Math.max(.01,1-dt/420));if(slapThrow3d.t>=1){slapThrow3d=null;rabbit3d.visible=false}}else rabbit3d.visible=false;arms3d.visible=handSwing>0;const swing=Math.max(0,handSwing);arms3d.rotation.x=-swing*1.25;arms3d.rotation.z=-swing*.22;arms3d.position.y=-swing*.42;arms3d.position.x=swing*.12;return}
- slapThrow3d=null;rabbit3d.visible=true;const z=-8+rabbit.depth*7,age=Math.max(0,elapsed*1000-rabbit.born),emerge=Math.min(1,age/420),ease=emerge*emerge*(3-2*emerge),side=rabbit.entrySide||rabbit.lane; const approach=Math.min(1,age/Math.max(1,rabbit.maxLife))*.9; const spring=Math.min(1,emerge*1.22);rabbit3d.position.set(rabbit.lane*2.35+side*(1-ease)*1.75,-.22-(1-ease)*.72+Math.sin(emerge*Math.PI)*.2+Math.abs(Math.sin(elapsed*10.5))*Math.max(0,1-emerge)*.1+Math.sin(elapsed*11)*.035,z+approach);rabbit3d.rotation.y=side*(1-ease)*.18;rabbit3d.rotation.z=Math.sin(elapsed*8)*.035;
+ slapThrow3d=null;rabbit3d.visible=true;const z=-8+rabbit.depth*7,age=Math.max(0,elapsed*1000-rabbit.born),emerge=Math.min(1,age/420),ease=emerge*emerge*(3-2*emerge),side=rabbit.entrySide||rabbit.lane; const approach=Math.min(1,age/Math.max(1,rabbit.maxLife))*.9; const spring=Math.min(1,emerge*1.22);if(rabbitEarL3d)rabbitEarL3d.rotation.z=Math.sin(elapsed*7.4+.4)*.12+Math.sin(elapsed*2.1)*.035;if(rabbitEarR3d)rabbitEarR3d.rotation.z=-Math.sin(elapsed*7.4)*.14+Math.sin(elapsed*2.4+.7)*.035;if(rabbitTail3d)rabbitTail3d.rotation.x=Math.sin(elapsed*8.5)*.16;rabbit3d.position.set(rabbit.lane*2.35+side*(1-ease)*1.75,-.22-(1-ease)*.72+Math.sin(emerge*Math.PI)*.2+Math.abs(Math.sin(elapsed*10.5))*Math.max(0,1-emerge)*.1+Math.sin(elapsed*11)*.035,z+approach);rabbit3d.rotation.y=side*(1-ease)*.18;rabbit3d.rotation.z=Math.sin(elapsed*8)*.035;
  const popIn=Math.min(1,.06+spring*1.14);rabbit3d.scale.setScalar(.64*popIn);
  rabbit3d.rotation.y=Math.sin(elapsed*3)*.08;
  if(rabbit.bonus){rabbit3d.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){o.material.emissive=new THREE.Color('#6a4c00');o.material.emissiveIntensity=.45}})}
+ // A subtle breathing/bounce loop keeps the rabbit alive while remaining easy to tap.
+ rabbit3d.position.y+=Math.sin(elapsed*5.6)*.025;
+ rabbit3d.rotation.x=Math.sin(elapsed*4.2)*.018;
  arms3d.visible=handSwing>0;arms3d.rotation.x=-Math.max(0,handSwing)*1.25;arms3d.position.y=-Math.max(0,handSwing)*.42;
 }
 function draw(dt=0){
