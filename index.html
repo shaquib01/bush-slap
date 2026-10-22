@@ -73,10 +73,14 @@ function drawTrack(ctx,w,h){foliage(ctx,w,h);const horizon=h*.27,center=w*.5,roa
 function drawArms(ctx){ctx.save();const swing=Math.sin(handSwing*Math.PI);ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowColor='#07111d';ctx.shadowBlur=14;ctx.lineWidth=65;ctx.strokeStyle='#101b30';ctx.beginPath();ctx.moveTo(W+20,H+30);ctx.lineTo(W*.79,H*.88-swing*55);ctx.stroke();ctx.lineWidth=49;ctx.strokeStyle='#263f65';ctx.beginPath();ctx.moveTo(W+20,H+30);ctx.lineTo(W*.79,H*.88-swing*55);ctx.stroke();ctx.lineWidth=35;ctx.strokeStyle='#111827';ctx.beginPath();ctx.moveTo(W*.79,H*.88-swing*55);ctx.lineTo(W*.76,H*.79-swing*80);ctx.stroke();ctx.fillStyle='#18243a';ctx.beginPath();ctx.ellipse(W*.76,H*.78-swing*80,32,27,-.25,0,Math.PI*2);ctx.fill();ctx.fillStyle='#3c5271';ctx.beginPath();ctx.ellipse(W*.75,H*.77-swing*80,23,17,-.25,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff3c91';ctx.fillRect(W*.73,H*.79-swing*80,35,6);ctx.restore()}
 function projectRabbit(lane,depth){
  if(renderer3d&&camera3d&&rabbit3d){
-  const age=rabbit?Math.max(0,elapsed*1000-rabbit.born):400,ease=Math.min(1,age/360),side=rabbit?.entrySide||lane;const emergeX=lane*2.35+side*(1-ease)*1.75;rabbit3d.position.set(emergeX,.02+Math.abs(Math.sin(Math.min(1,age/360)*Math.PI))*0.42+Math.sin(elapsed*11)*.05,-8+depth*7);
-  rabbit3d.updateMatrixWorld(true);camera3d.updateMatrixWorld(true);
-  const v=new THREE.Vector3(0,1.05,0).applyMatrix4(rabbit3d.matrixWorld).project(camera3d);
-  const distance=Math.max(1,camera3d.position.distanceTo(rabbit3d.position));
+  // Project the predicted live rabbit position without mutating the rendered mesh.
+  // This keeps spawn effects, keyboard targeting and tap hitboxes in sync with the animation.
+  const age=rabbit?Math.max(0,elapsed*1000-rabbit.born):400,emerge=Math.min(1,age/420),ease=emerge*emerge*(3-2*emerge),side=rabbit?.entrySide||lane;
+  const z=-8+depth*7,approach=Math.min(1,age/Math.max(1,rabbit?.maxLife||1550))*.9;
+  const pos=new THREE.Vector3(lane*2.35+side*(1-ease)*1.75,-.22-(1-ease)*.72+Math.sin(emerge*Math.PI)*.2+Math.abs(Math.sin(elapsed*10.5))*Math.max(0,1-emerge)*.1+Math.sin(elapsed*11)*.035,z+approach);
+  camera3d.updateMatrixWorld(true);
+  const v=pos.clone().add(new THREE.Vector3(0,1.05*.64,0)).project(camera3d);
+  const distance=Math.max(1,camera3d.position.distanceTo(pos));
   const scale=(H/(2*Math.tan(THREE.MathUtils.degToRad(camera3d.fov/2))*distance))*.64;
   return{x:(v.x*.5+.5)*W,y:(-v.y*.5+.5)*H,s:scale};
  }
