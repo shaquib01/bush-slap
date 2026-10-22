@@ -815,6 +815,10 @@ func _toggle_pause() -> void:
 		_resume_round()
 	else:
 		paused = true
+		if mode_button:
+			mode_button.visible = false
+		if skin_button:
+			skin_button.visible = false
 		_remove_rabbit()
 		if pause_button:
 			pause_button.text = "▶"
@@ -826,6 +830,10 @@ func _resume_round() -> void:
 		return
 	paused = false
 	overlay.visible = false
+	if mode_button:
+		mode_button.visible = false
+	if skin_button:
+		skin_button.visible = false
 	if pause_button:
 		pause_button.text = "Ⅱ"
 	message_label.text = "TAP THE RABBIT!"
@@ -834,6 +842,10 @@ func _resume_round() -> void:
 
 func _start_round() -> void:
 	paused = false
+	if mode_button:
+		mode_button.visible = false
+	if skin_button:
+		skin_button.visible = false
 	if pause_button:
 		pause_button.text = "Ⅱ"
 	score = 0
@@ -864,6 +876,10 @@ func _end_round() -> void:
 	for i in range(round_history.size()):
 		var history_score: int = round_history[round_history.size() - 1 - i]
 		history_text += "\n%d. %d points" % [i + 1, history_score]
+	if mode_button:
+		mode_button.visible = true
+	if skin_button:
+		skin_button.visible = true
 	_show_overlay("ROUND OVER!", "%s · %s\nScore: %d\nPersonal best: %d\n\nRECENT ROUNDS%s\n\nTap play to try again." % [game_mode, result_reason, score, best, history_text])
 	play_button.text = "↻  PLAY AGAIN"
 
