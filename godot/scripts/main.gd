@@ -321,6 +321,12 @@ func _spawn_rabbit() -> void:
 	_add_box(rabbit_visual, Vector3(-0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
 	_add_box(rabbit_visual, Vector3(0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
 	_add_box(rabbit_visual, Vector3(0, 1.34, -0.43), Vector3(0.18, 0.12, 0.06), Color(0.94, 0.43, 0.61))
+	# Small block highlights make the face readable at a glance, even on a phone.
+	_add_box(rabbit_visual, Vector3(-0.28, 1.59, -0.425), Vector3(0.045, 0.045, 0.025), Color(1.0, 1.0, 1.0))
+	_add_box(rabbit_visual, Vector3(0.22, 1.59, -0.425), Vector3(0.045, 0.045, 0.025), Color(1.0, 1.0, 1.0))
+	# Puffy pixel tail and a tiny forelock reinforce the toy-like voxel silhouette.
+	_add_box(rabbit_visual, Vector3(0, 0.78, 0.36), Vector3(0.38, 0.38, 0.34), Color(1.0, 0.99, 0.94))
+	_add_box(rabbit_visual, Vector3(0, 1.91, 0.0), Vector3(0.24, 0.16, 0.22), Color(1.0, 0.99, 0.94))
 	for side in [-1.0, 1.0]:
 		var ear_pivot := Node3D.new()
 		ear_pivot.position = Vector3(side * 0.23, 1.82, 0.02)
@@ -330,6 +336,7 @@ func _spawn_rabbit() -> void:
 		_add_box(ear_pivot, Vector3(0, 0.28, 0), Vector3(0.24, 0.70, 0.22), Color(0.96, 0.95, 0.91))
 		_add_box(ear_pivot, Vector3(0, 0.28, -0.115), Vector3(0.13, 0.50, 0.035), Color(0.95, 0.42, 0.63))
 		_add_box(rabbit_visual, Vector3(side * 0.27, 0.15, -0.06), Vector3(0.34, 0.18, 0.48), Color(0.98, 0.94, 0.91))
+		_add_box(rabbit_visual, Vector3(side * 0.27, 0.055, -0.29), Vector3(0.16, 0.045, 0.06), Color(0.94, 0.57, 0.68))
 		_add_box(rabbit_visual, Vector3(side * 0.49, 1.32, -0.20), Vector3(0.15, 0.24, 0.08), Color(1.0, 0.65, 0.72))
 	add_child(rabbit)
 	rabbit_age = 0.0
