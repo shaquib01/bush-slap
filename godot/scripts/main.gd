@@ -82,6 +82,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventScreenTouch and event.pressed:
 		pressed = true
 		screen_pos = event.position
+	elif event is InputEventKey and event.pressed and not event.echo:
+		# Keyboard fallback: Space targets the screen centre; Enter starts/restarts.
+		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			if not playing:
+				_start_round()
+				get_viewport().set_input_as_handled()
+				return
+		elif event.keycode == KEY_SPACE and playing:
+			pressed = true
+			screen_pos = get_viewport().get_visible_rect().size * 0.5
 	if pressed and playing:
 		_animate_slap_hand()
 		_try_slap(screen_pos)
