@@ -37,6 +37,7 @@ footer{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#
 <footer><span>ONE GAME. EVERY SCREEN.</span><span>Mobile · Tablet · PC · Mac · Linux · TV browsers</span><span>No visible level numbers 🌿</span></footer>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <script>
 (()=>{const c=document.querySelector('#game'),x=c.getContext('2d'),hc=document.querySelector('#heroScene'),hx=hc.getContext('2d'),$=id=>document.getElementById(id),W=960,H=540;let run=false,paused=false,score=0,combo=0,peakCombo=0,hits=0,misses=0,lives=3,left=45,elapsed=0,last=0,next=250,rabbit=null,particles=[],texts=[],soundOn=true,ac=null,raf=0,best=0,handSwing=0,screenShake=0,rabbitSkin='classic',environment='forest';try{rabbitSkin=localStorage.getItem('bushSlapSkin')||'classic'}catch{}try{best=+(localStorage.getItem('bushSlapBest')||0)}catch{}
 const bushes=[{x:155,y:335,s:1.05},{x:365,y:385,s:.92},{x:600,y:330,s:1.1},{x:810,y:390,s:.94},{x:265,y:465,s:.8},{x:710,y:470,s:.82}];
