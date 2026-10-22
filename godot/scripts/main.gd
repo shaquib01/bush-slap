@@ -98,12 +98,20 @@ func _build_world() -> void:
 	]
 	for p in bush_positions:
 		_make_bush(p)
+		_make_bush_accents(p)
 	# Pixel flowers and stones add detail to the foreground.
 	for i in range(34):
 		var x := rng.randf_range(-7.0, 7.0)
 		var z := rng.randf_range(2.0, 6.5)
 		var col := [Color(1.0, 0.75, 0.20), Color(1.0, 0.45, 0.68), Color(0.88, 0.94, 0.66)][i % 3]
 		_add_box(world_root, Vector3(x, 0.02, z), Vector3(0.12, 0.12, 0.12), col)
+		if i % 3 == 0:
+			_add_box(world_root, Vector3(x + 0.13, 0.015, z + 0.08), Vector3(0.20, 0.06, 0.14), Color(0.48, 0.49, 0.43))
+	# Tiny blocky trail markers guide the eye toward the rabbit spawn area.
+	for i in range(8):
+		var z := 5.4 - float(i) * 1.15
+		var x := -1.75 if i % 2 == 0 else 1.75
+		_add_box(world_root, Vector3(x, 0.045, z), Vector3(0.22, 0.09, 0.22), Color(0.93, 0.72, 0.36))
 
 func _build_camera() -> void:
 	camera = Camera3D.new()
@@ -253,6 +261,17 @@ func _make_bush(origin: Vector3) -> void:
 		var offset := Vector3(rng.randf_range(-0.8, 0.8), rng.randf_range(0.2, 0.85), rng.randf_range(-0.45, 0.45))
 		var size := rng.randf_range(0.45, 0.78)
 		_add_box(world_root, origin + offset, Vector3(size, size, size), greens[i % greens.size()])
+
+
+func _make_bush_accents(origin: Vector3) -> void:
+	# Bright leaf pixels and berry-like blocks make each target zone easier to parse.
+	var leaf_colors := [Color(0.47, 0.79, 0.25), Color(0.67, 0.86, 0.30), Color(0.22, 0.65, 0.26)]
+	for i in range(5):
+		var side := -1.0 if i % 2 == 0 else 1.0
+		var accent_pos := origin + Vector3(side * rng.randf_range(0.45, 0.88), rng.randf_range(0.38, 0.95), rng.randf_range(-0.42, 0.42))
+		_add_box(world_root, accent_pos, Vector3(0.16, 0.16, 0.16), leaf_colors[i % leaf_colors.size()])
+	for side in [-1.0, 1.0]:
+		_add_box(world_root, origin + Vector3(side * 0.62, 0.48, -0.47), Vector3(0.12, 0.12, 0.08), Color(1.0, 0.35, 0.45))
 
 func _add_light(pos: Vector3, energy: float, tint: Color) -> void:
 	var light := DirectionalLight3D.new()
