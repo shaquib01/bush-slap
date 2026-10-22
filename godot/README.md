@@ -16,7 +16,8 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 - Mouse and touch input with a raycast hit target.
 - Score, combo, timer and round restart.
 - Camera-attached blocky first-person hand with a three-beat slap swing animation.
-- Rabbit hop bounce with subtle squash-and-stretch, plus comic-style SLAP/POW/BONK hit lettering and colorful voxel burst particles.
+- Rabbit hop bounce and independently swaying ears, plus comic-style SLAP/POW/BONK hit lettering, colorful voxel burst particles, and a brief camera jolt on a successful hit.
+- Slightly more forgiving rabbit hitbox and longer appearance window to improve touch play.
 - More readable target bushes with bright leaf/berry pixels, foreground stones, and small trail markers.
 - Personal-best score saved locally with Godot's user data configuration.
 - Difficulty ramps gently: rabbit time and spawn gaps tighten gradually with a lower bound.
