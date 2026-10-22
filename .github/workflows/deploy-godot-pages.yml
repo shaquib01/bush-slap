@@ -1,4 +1,4 @@
-name: Deploy Bush Slap browser preview
+name: Deploy Bush Slap website preview
 
 on:
   push:
@@ -24,49 +24,25 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Check out prototype
+      - name: Check out the existing browser website
         uses: actions/checkout@v4
-
-      - name: Install Godot 4
-        uses: chickensoft-games/setup-godot@v2
         with:
-          version: 4.4.1
-          use-dotnet: false
-
-      - name: Install matching Godot web export templates
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --location --retry 3 \
-            "https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz" \
-            --output /tmp/godot-export-templates.tpz
-          mkdir -p /tmp/godot-export-templates
-          unzip -q /tmp/godot-export-templates.tpz -d /tmp/godot-export-templates
-          mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
-          cp -a /tmp/godot-export-templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
-
-      - name: Export browser build
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p godot/build/web
-          godot --headless --path godot --export-release "Web" build/web/index.html
-          test -s godot/build/web/index.html
-          test -n "$(find godot/build/web -maxdepth 1 -type f -name '*.wasm' -print -quit)"
-          test -n "$(find godot/build/web -maxdepth 1 -type f -name '*.js' -print -quit)"
-          test -n "$(find godot/build/web -maxdepth 1 -type f -name '*.pck' -print -quit)"
-
-      - name: Prepare GitHub Pages path for project sites
-        shell: bash
-        run: |
-          set -euo pipefail
-          touch godot/build/web/.nojekyll
-
+          ref: main
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm install
+      - name: Build the existing Vercel frontend
+        run: npm run build
+      - name: Confirm frontend output
+        run: test -s dist/index.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: godot/build/web
-
-      - name: Deploy to GitHub Pages
+          path: dist
+      - name: Deploy website to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
