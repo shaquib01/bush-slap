@@ -27,6 +27,10 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 
 This is an early prototype foundation, not a verified release. The art is built from procedural cubes and needs the final approved concept-art assets, further expressive rabbit/ear animation, audio, accessibility review, and performance tuning. Personal best is saved locally; online accounts, cloud sync, and global leaderboards are not implemented. The scene has not yet been run through the Godot editor or tested on real devices, so syntax/runtime and input behavior still need validation.
 
+## Automated project check
+
+A GitHub Actions workflow in `.github/workflows/godot-check.yml` installs Godot 4.4.1 and runs a headless editor import check whenever the prototype files change. This can catch project-import and script parse errors, but it does **not** prove gameplay, rendering, touch input, or browser export works. Check the workflow status on the `godot4-prototype` branch after each commit.
+
 ## Browser export
 
 Use Godot's **Web** export preset after installing the matching export templates. Test the exported build on actual desktop and mobile browsers before replacing the live website. Godot 4 web exports require WebAssembly and WebGL 2 support; browser and TV compatibility must be verified individually.
