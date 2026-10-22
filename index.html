@@ -144,7 +144,7 @@ function projectRabbit(lane,depth){
  const age=rabbit?Math.max(0,elapsed*1000-rabbit.born):400,ease=Math.min(1,age/360),side=rabbit?.entrySide||lane;return{x:center+lane*W*(.28-.13*z)+side*W*.16*(1-ease),y:H*(.77-.14*z)-Math.sin(ease*Math.PI)*H*.035,s:1.1-.35*z}
 }
 
-const c3=document.querySelector('#game3d');let renderer3d=null,scene3d=null,camera3d=null,world3d=null,rabbit3d=null,rabbitEarL3d=null,rabbitEarR3d=null,rabbitTail3d=null,arms3d=null,road3d=null,roadMarks3d=null,slapThrow3d=null,clock3d=0,worldProps3d=[],ground3d=null,roadSurface3d=null,themeSky3d=null,themeFog3d=null,themeFrom3d=null,themeBlend3d=1,nextSkinAt=9,nextEnvAt=16;const envThemes3d={forest:{sky:'#64c8e9',fog:'#64c8e9',ground:'#24563e',road:'#334656',leaf:['#07513a','#16834b','#4bc943'],rock:'#65736f'},ruins:{sky:'#a6b5c4',fog:'#a6b5c4',ground:'#68665b',road:'#4b515b',leaf:['#3f514a','#68765d','#89916c'],rock:'#888579'},sunset:{sky:'#f79a86',fog:'#f79a86',ground:'#74423e',road:'#493c55',leaf:['#682c49','#b84452','#df654c'],rock:'#7b5a66'}};
+const c3=document.querySelector('#game3d');let renderer3d=null,scene3d=null,camera3d=null,world3d=null,rabbit3d=null,rabbitEarL3d=null,rabbitEarR3d=null,rabbitTail3d=null,rabbitLegL3d=null,rabbitLegR3d=null,arms3d=null,road3d=null,roadMarks3d=null,slapThrow3d=null,clock3d=0,worldProps3d=[],ground3d=null,roadSurface3d=null,themeSky3d=null,themeFog3d=null,themeFrom3d=null,themeBlend3d=1,nextSkinAt=9,nextEnvAt=16;const envThemes3d={forest:{sky:'#64c8e9',fog:'#64c8e9',ground:'#24563e',road:'#334656',leaf:['#07513a','#16834b','#4bc943'],rock:'#65736f'},ruins:{sky:'#a6b5c4',fog:'#a6b5c4',ground:'#68665b',road:'#4b515b',leaf:['#3f514a','#68765d','#89916c'],rock:'#888579'},sunset:{sky:'#f79a86',fog:'#f79a86',ground:'#74423e',road:'#493c55',leaf:['#682c49','#b84452','#df654c'],rock:'#7b5a66'}};
 function mat(color,roughness=.86){return new THREE.MeshStandardMaterial({color,roughness})}
 function box(parent,w,h,d,color,px,py,pz,material=null){const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material||mat(color));mesh.position.set(px,py,pz);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
 function buildRabbit3d(){
@@ -159,7 +159,13 @@ function buildRabbit3d(){
  box(rabbitEarR3d,.24,.88,.2,palette[0],0,.4,0);
  box(rabbitEarR3d,.12,.58,.065,palette[2],0,.42,.112);
  box(group,.14,.15,.075,palette[3],-.18,1.47,.315);box(group,.14,.15,.075,palette[3],.18,1.47,.315);box(group,.045,.045,.025,'#ffffff',-.195,1.505,.36);box(group,.045,.045,.025,'#ffffff',.165,1.505,.36);
- box(group,.12,.09,.08,palette[2],0,1.28,.34);box(group,.2,.09,.1,palette[1],-.53,.77,.02);box(group,.2,.09,.1,palette[1],.53,.77,.02);box(group,.3,.28,.28,palette[1],0,.2,-.02);
+ box(group,.12,.09,.08,palette[2],0,1.28,.34);box(group,.2,.09,.1,palette[1],-.53,.77,.02);box(group,.2,.09,.1,palette[1],.53,.77,.02);
+  // Articulated voxel legs replace the wheel-like lower silhouette.
+  rabbitLegL3d=new THREE.Group();rabbitLegL3d.position.set(-.23,.34,.12);group.add(rabbitLegL3d);
+  box(rabbitLegL3d,.22,.32,.23,palette[0],0,-.1,0);box(rabbitLegL3d,.25,.12,.3,palette[1],0,-.28,.09);box(rabbitLegL3d,.12,.06,.12,palette[0],-.04,-.31,.22);
+  rabbitLegR3d=new THREE.Group();rabbitLegR3d.position.set(.23,.34,.12);group.add(rabbitLegR3d);
+  box(rabbitLegR3d,.22,.32,.23,palette[0],0,-.1,0);box(rabbitLegR3d,.25,.12,.3,palette[1],0,-.28,.09);box(rabbitLegR3d,.12,.06,.12,palette[0],.04,-.31,.22);
+  box(rabbitLegL3d,.08,.045,.035,palette[2],-.065,-.29,.245);box(rabbitLegR3d,.08,.045,.035,palette[2],.065,-.29,.245);
  rabbitTail3d=new THREE.Group();rabbitTail3d.position.set(0,.56,-.34);group.add(rabbitTail3d);
  box(rabbitTail3d,.24,.24,.24,'#fff8ed',0,0,0);
  box(rabbitTail3d,.12,.12,.12,palette[1],.02,.02,-.13);box(group,.14,.14,.14,'#fff8ed',0,.2,.16);box(group,.08,.08,.08,palette[2],-.04,1.29,.405);box(group,.08,.08,.08,palette[2],.04,1.29,.405);box(group,.25,.08,.12,'#101a2b',-.23,1.48,.365);box(group,.25,.08,.12,'#101a2b',.23,1.48,.365);
@@ -221,9 +227,9 @@ function init3d(){
     box(tree,.82,.48,.78,canopyColors[(i+4)%canopyColors.length],.27,2.43,-.02);
     box(tree,.46,.36,.48,canopyColors[(i+5)%canopyColors.length],-.02,2.77,-.04);
     // Small leaf pixels build a jagged, chunky canopy silhouette.
-    for(let p=0;p<9;p++){
-     const px=((p%3)-1)*.38+(Math.floor(p/3)%2)*.12,py=1.55+Math.floor(p/3)*.29,pz=(p%2)*.28+.22;
-     box(tree,.22,.2,.22,canopyColors[(i+p*2)%canopyColors.length],px,py,pz);
+    for(let p=0;p<21;p++){
+     const px=((p%5)-2)*.25+(Math.floor(p/5)%2)*.08,py=1.48+Math.floor(p/5)*.25,pz=(p%3)*.18+.22;
+     box(tree,.2,.19,.2,canopyColors[(i+p*2)%canopyColors.length],px,py,pz);
     }
     // Bright sunlit leaf pixels on the front, contrasted by dark green edge blocks.
     for(let p=0;p<4;p++)box(tree,.14,.13,.12,['#a4f06b','#83e85b','#c0f58a','#62d94c'][(i+p)%4],-.42+(p%2)*.58,1.9+Math.floor(p/2)*.34,.59);
@@ -334,7 +340,7 @@ function resize3d(){if(!renderer3d||!camera3d)return;const r=c.getBoundingClient
 function syncRabbit3d(dt=0){
  if(!rabbit3d||!scene3d)return;
  if(!rabbit){if(slapThrow3d){slapThrow3d.t+=dt/360;rabbit3d.visible=true;rabbit3d.position.x+=slapThrow3d.side*dt/360*5;rabbit3d.position.y+=dt/360*1.8;rabbit3d.rotation.z+=dt/360*slapThrow3d.side*5;rabbit3d.scale.multiplyScalar(Math.max(.01,1-dt/420));if(slapThrow3d.t>=1){slapThrow3d=null;rabbit3d.visible=false}}else rabbit3d.visible=false;arms3d.visible=handSwing>0;const swing=Math.max(0,handSwing);arms3d.rotation.x=-swing*1.25;arms3d.rotation.z=-swing*.22;arms3d.position.y=-swing*.42;arms3d.position.x=swing*.12;return}
- slapThrow3d=null;rabbit3d.visible=true;const z=-8+rabbit.depth*7,age=Math.max(0,elapsed*1000-rabbit.born),emerge=Math.min(1,age/420),ease=emerge*emerge*(3-2*emerge),side=rabbit.entrySide||rabbit.lane; const approach=Math.min(1,age/Math.max(1,rabbit.maxLife))*.9; const spring=Math.min(1,emerge*1.22);if(rabbitEarL3d)rabbitEarL3d.rotation.z=Math.sin(elapsed*7.4+.4)*.12+Math.sin(elapsed*2.1)*.035;if(rabbitEarR3d)rabbitEarR3d.rotation.z=-Math.sin(elapsed*7.4)*.14+Math.sin(elapsed*2.4+.7)*.035;if(rabbitTail3d)rabbitTail3d.rotation.x=Math.sin(elapsed*8.5)*.16;const portrait3d=!!(camera3d&&camera3d.aspect<.95),laneWidth=portrait3d?1.12:2.35,entryWidth=portrait3d?.72:1.75;rabbit3d.position.set(rabbit.lane*laneWidth+side*(1-ease)*entryWidth,-.22-(1-ease)*.72+Math.sin(emerge*Math.PI)*.2+Math.abs(Math.sin(elapsed*10.5))*Math.max(0,1-emerge)*.1+Math.sin(elapsed*11)*.035,z+approach);rabbit3d.rotation.y=side*(1-ease)*.18;rabbit3d.rotation.z=Math.sin(elapsed*8)*.035;
+ slapThrow3d=null;rabbit3d.visible=true;const z=-8+rabbit.depth*7,age=Math.max(0,elapsed*1000-rabbit.born),emerge=Math.min(1,age/420),ease=emerge*emerge*(3-2*emerge),side=rabbit.entrySide||rabbit.lane; const approach=Math.min(1,age/Math.max(1,rabbit.maxLife))*.9; const spring=Math.min(1,emerge*1.22);if(rabbitEarL3d)rabbitEarL3d.rotation.z=Math.sin(elapsed*7.4+.4)*.12+Math.sin(elapsed*2.1)*.035;if(rabbitEarR3d)rabbitEarR3d.rotation.z=-Math.sin(elapsed*7.4)*.14+Math.sin(elapsed*2.4+.7)*.035;if(rabbitLegL3d)rabbitLegL3d.rotation.x=Math.sin(elapsed*13)*.52;if(rabbitLegR3d)rabbitLegR3d.rotation.x=Math.sin(elapsed*13+Math.PI)*.52;if(rabbitTail3d)rabbitTail3d.rotation.x=Math.sin(elapsed*8.5)*.16;const portrait3d=!!(camera3d&&camera3d.aspect<.95),laneWidth=portrait3d?1.12:2.35,entryWidth=portrait3d?.72:1.75;rabbit3d.position.set(rabbit.lane*laneWidth+side*(1-ease)*entryWidth,-.22-(1-ease)*.72+Math.sin(emerge*Math.PI)*.2+Math.abs(Math.sin(elapsed*10.5))*Math.max(0,1-emerge)*.1+Math.sin(elapsed*11)*.035,z+approach);rabbit3d.rotation.y=side*(1-ease)*.18;rabbit3d.rotation.z=Math.sin(elapsed*8)*.035;
  const popIn=Math.min(1,.06+spring*1.14),portraitScale=portrait3d?1.58:1;rabbit3d.scale.setScalar(.64*portraitScale*popIn);
  rabbit3d.rotation.y=Math.sin(elapsed*3)*.08;
  if(rabbit.bonus){rabbit3d.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){o.material.emissive=new THREE.Color('#6a4c00');o.material.emissiveIntensity=.45}})}
