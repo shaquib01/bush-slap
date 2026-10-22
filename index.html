@@ -6,7 +6,7 @@
 <link rel="manifest" href="/manifest.json"><title>Bush Slap — Tap. Slap. Repeat.</title>
 <style>
 :root{color-scheme:dark;--pink:#ff167b;--hot:#ff3c91;--lime:#a8ff24;--gold:#ffe14a;--ink:#f7f8ff;--muted:#b5c0e2;--panel:#0b1430;--line:#24416a}
-*{box-sizing:border-box}body{margin:0;min-height:100svh;padding:clamp(10px,2.2vw,26px);font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:var(--ink);background:radial-gradient(ellipse at 70% 0%,#22296d 0,#0b1027 45%,#050812 100%);display:flex;justify-content:center;overflow-x:hidden}
+*{box-sizing:border-box}button:focus-visible,[tabindex]:focus-visible{outline:3px solid #67e8f9;outline-offset:3px}body{margin:0;min-height:100svh;padding:clamp(10px,2.2vw,26px);font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:var(--ink);background:radial-gradient(ellipse at 70% 0%,#22296d 0,#0b1027 45%,#050812 100%);display:flex;justify-content:center;overflow-x:hidden}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.24;background:repeating-linear-gradient(135deg,transparent 0 90px,#ff167b 91px 94px,transparent 95px 175px);mask-image:linear-gradient(to bottom,black,transparent 70%)}
 .app{position:relative;width:min(100%,1240px);display:grid;gap:14px;align-content:start}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 2px}.brand{display:flex;gap:10px;align-items:center}.logo{font-size:25px;filter:drop-shadow(0 0 12px #ff167b)}h1{font-size:clamp(25px,4vw,42px);margin:0;line-height:.9;font-weight:1000;font-style:italic;letter-spacing:-2px;text-shadow:3px 3px #a40050}h1 span{color:var(--pink)}.tag{font-size:10px;font-weight:1000;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-top:7px}.nav{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}.nav span,.navlink{font-size:11px;font-weight:800;color:#d9def8;padding:8px 10px}.navlink{font-family:inherit;border:0;background:transparent;cursor:pointer;border-radius:8px}.navlink:hover,.navlink:focus-visible{background:#ffffff12;outline:1px solid #5268a5}.nav .playnav{border:0;border-radius:10px;background:var(--pink);color:white;padding:10px 16px;box-shadow:0 4px #a5004e;cursor:pointer;font-weight:1000}
@@ -37,7 +37,7 @@ footer{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#
 <footer><span>ONE GAME. EVERY SCREEN.</span><span>Mobile · Tablet · PC · Mac · Linux · TV browsers</span><span>No visible level numbers 🌿</span></footer>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+
 <script>
 (()=>{const c=document.querySelector('#game'),x=c.getContext('2d'),hc=document.querySelector('#heroScene'),hx=hc.getContext('2d'),$=id=>document.getElementById(id),W=960,H=540,reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches,lowPower=window.matchMedia('(max-width: 700px)').matches||(navigator.deviceMemory&&navigator.deviceMemory<=4);let run=false,paused=false,score=0,combo=0,peakCombo=0,hits=0,misses=0,lives=3,left=45,elapsed=0,last=0,next=250,rabbit=null,particles=[],texts=[],soundOn=true,ac=null,raf=0,best=0,handSwing=0,screenShake=0,rabbitSkin='classic',environment='forest';try{rabbitSkin=localStorage.getItem('bushSlapSkin')||'classic'}catch{}try{best=+(localStorage.getItem('bushSlapBest')||0)}catch{}
 try{soundOn=localStorage.getItem('bushSlapSound')!=='off'}catch{}
