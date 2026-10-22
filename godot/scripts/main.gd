@@ -22,6 +22,8 @@ var rabbit_home_position := Vector3.ZERO
 var round_time := ROUND_SECONDS
 var score := 0
 var combo := 0
+var lives := 3
+var hud_lives: Label
 var best := 0
 var playing := false
 var paused := false
@@ -244,9 +246,12 @@ func _build_hud() -> void:
 	hud_score = _hud_label("SCORE  0000", 24)
 	hud_time = _hud_label("TIME  60", 22)
 	hud_combo = _hud_label("COMBO  x0", 22)
+	hud_lives = _hud_label("♥ ♥ ♥", 20)
 	hud_top.add_child(hud_score)
 	hud_top.add_spacer(false)
 	hud_top.add_child(hud_combo)
+	hud_top.add_spacer(false)
+	hud_top.add_child(hud_lives)
 	hud_top.add_spacer(false)
 	hud_top.add_child(hud_time)
 	pause_button = Button.new()
@@ -347,6 +352,8 @@ func _apply_responsive_hud() -> void:
 		hud_time.add_theme_font_size_override("font_size", 16 if compact else 22)
 	if hud_combo:
 		hud_combo.add_theme_font_size_override("font_size", 15 if compact else 22)
+	if hud_lives:
+		hud_lives.add_theme_font_size_override("font_size", 15 if compact else 20)
 	if hud_progress:
 		hud_progress.offset_left = 10.0 if compact else 18.0
 		hud_progress.offset_right = -10.0 if compact else -18.0
@@ -717,9 +724,13 @@ func _save_best() -> void:
 
 func _escape_rabbit() -> void:
 	combo = 0
+	lives = maxi(0, lives - 1)
 	_remove_rabbit()
 	spawn_timer = 0.3
-	message_label.text = "IT GOT AWAY!"
+	message_label.text = "IT GOT AWAY!  -1 LIFE"
+	_update_hud()
+	if lives <= 0:
+		_end_round()
 
 func _remove_rabbit() -> void:
 	if rabbit and is_instance_valid(rabbit):
@@ -763,6 +774,7 @@ func _start_round() -> void:
 		pause_button.text = "Ⅱ"
 	score = 0
 	combo = 0
+	lives = 3
 	round_time = ROUND_SECONDS
 	playing = true
 	spawn_timer = 0.25
@@ -777,7 +789,8 @@ func _end_round() -> void:
 	if pause_button:
 		pause_button.text = "Ⅱ"
 	_remove_rabbit()
-	_show_overlay("ROUND OVER!", "Score: %d\nPersonal best: %d\nTap play to try again." % [score, best])
+	var result_reason := "All lives lost!" if lives <= 0 else "Time's up!"
+	_show_overlay("ROUND OVER!", "%s\nScore: %d\nPersonal best: %d\nTap play to try again." % [result_reason, score, best])
 	play_button.text = "↻  PLAY AGAIN"
 
 func _show_overlay(title_text: String, body_text: String) -> void:
