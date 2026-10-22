@@ -284,6 +284,7 @@ func _try_slap(screen_pos: Vector2) -> void:
 			best = score
 			_save_best()
 		message_label.text = ["NICE SLAP!", "COMBO!", "BUNNY BONK!", "PERFECT!"][rng.randi_range(0, 3)]
+		_spawn_voxel_burst(rabbit.position + Vector3(0, 1.25, 0))
 		_show_hit_fx()
 		_remove_rabbit()
 		spawn_timer = 0.35
@@ -308,6 +309,19 @@ func _show_hit_fx() -> void:
 	tween.tween_property(hit_fx_label, "scale", Vector2(1.15, 1.15), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(hit_fx_label, "rotation", 0.0, 0.22)
 	tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.48).set_delay(0.24)
+
+func _spawn_voxel_burst(origin: Vector3) -> void:
+	# Small block particles make each hit feel physical without obscuring the playfield.
+	var palette := [Color(1.0, 0.80, 0.16), Color(1.0, 0.28, 0.52), Color(0.24, 0.91, 1.0), Color(0.91, 1.0, 0.63)]
+	for i in range(12):
+		var piece_size := rng.randf_range(0.09, 0.19)
+		var piece := _add_box(world_root, origin, Vector3.ONE * piece_size, palette[i % palette.size()])
+		var destination := origin + Vector3(rng.randf_range(-1.25, 1.25), rng.randf_range(0.25, 1.6), rng.randf_range(-0.8, 0.7))
+		var tween := create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(piece, "position", destination, rng.randf_range(0.22, 0.42)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.tween_property(piece, "scale", Vector3.ZERO, 0.34).set_delay(0.08)
+		tween.tween_callback(piece.queue_free).set_delay(0.46)
 
 func _load_best() -> void:
 	var config := ConfigFile.new()
