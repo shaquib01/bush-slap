@@ -81,7 +81,9 @@ func _process(delta: float) -> void:
 				rabbit_visual.scale = Vector3(entrance + hop * 0.035, entrance - hop * 0.045, entrance + hop * 0.035)
 				for ear_index in range(rabbit_ears.size()):
 					var ear := rabbit_ears[ear_index]
-					ear.rotation_degrees.z = sin(rabbit_phase * 0.8 + float(ear_index) * PI) * 7.0
+					# Asymmetric ear lag plus a slower twitch gives the voxel bunny a lively silhouette.
+					var ear_phase := rabbit_phase * (0.8 if ear_index == 0 else 0.67) + float(ear_index) * PI
+					ear.rotation_degrees.z = sin(ear_phase) * 7.0 + sin(rabbit_phase * 0.23 + float(ear_index) * 2.1) * 2.5
 			if rabbit_age >= _rabbit_lifetime():
 				_escape_rabbit()
 		if spawn_timer <= 0.0 and (not rabbit or not is_instance_valid(rabbit)):
