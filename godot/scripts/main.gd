@@ -21,6 +21,8 @@ var rabbit_age := 0.0
 var rabbit_home_position := Vector3.ZERO
 var round_time := ROUND_SECONDS
 var game_mode := "TIMED"
+var skin_index := 0
+var skin_button: Button
 var mode_button: Button
 var score := 0
 var combo := 0
@@ -337,6 +339,12 @@ func _build_hud() -> void:
 	play_button.custom_minimum_size = Vector2(220, 58)
 	play_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	play_button.add_theme_font_size_override("font_size", 24)
+	skin_button = Button.new()
+	skin_button.text = "RABBIT SKIN: SNOW"
+	skin_button.custom_minimum_size = Vector2(240, 42)
+	skin_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	skin_button.pressed.connect(_cycle_rabbit_skin)
+	overlay_panel.add_child(skin_button)
 	mode_button = Button.new()
 	mode_button.text = "MODE: TIMED · 60 SECONDS"
 	mode_button.custom_minimum_size = Vector2(240, 42)
@@ -392,6 +400,9 @@ func _apply_responsive_hud() -> void:
 	if mode_button:
 		mode_button.custom_minimum_size = Vector2(210, 38) if compact else Vector2(240, 42)
 		mode_button.add_theme_font_size_override("font_size", 15 if compact else 17)
+	if skin_button:
+		skin_button.custom_minimum_size = Vector2(210, 38) if compact else Vector2(240, 42)
+		skin_button.add_theme_font_size_override("font_size", 15 if compact else 17)
 
 func _hud_label(text_value: String, font_size: int) -> Label:
 	var label := Label.new()
@@ -559,8 +570,10 @@ func _spawn_rabbit() -> void:
 	rabbit.add_child(rabbit_visual)
 	# Chunky white body, square head, pink inner ears, visible feet and cheeks.
 	rabbit_ears.clear()
-	var fur_color := Color(1.0, 0.73, 0.17) if rabbit_is_golden else Color(0.91, 0.94, 1.0)
-	var head_color := Color(1.0, 0.86, 0.32) if rabbit_is_golden else Color(1.0, 0.98, 0.94)
+	var fur_palette: Array[Color] = [Color(0.91, 0.94, 1.0), Color(0.48, 0.27, 0.16), Color(0.48, 0.54, 0.60)]
+	var head_palette: Array[Color] = [Color(1.0, 0.98, 0.94), Color(0.72, 0.48, 0.31), Color(0.70, 0.75, 0.79)]
+	var fur_color: Color = Color(1.0, 0.73, 0.17) if rabbit_is_golden else fur_palette[skin_index]
+	var head_color: Color = Color(1.0, 0.86, 0.32) if rabbit_is_golden else head_palette[skin_index]
 	_add_box(rabbit_visual, Vector3(0, 0.75, 0), Vector3(0.85, 0.95, 0.62), fur_color)
 	_add_box(rabbit_visual, Vector3(0, 1.45, -0.03), Vector3(0.88, 0.78, 0.70), head_color)
 	_add_box(rabbit_visual, Vector3(-0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
@@ -767,6 +780,14 @@ func _remove_rabbit() -> void:
 		rabbit.queue_free()
 	rabbit = null
 	rabbit_visual = null
+
+func _cycle_rabbit_skin() -> void:
+	if playing:
+		return
+	skin_index = (skin_index + 1) % 3
+	var skin_names: Array[String] = ["SNOW", "COCOA", "ASH"]
+	if skin_button:
+		skin_button.text = "RABBIT SKIN: " + skin_names[skin_index]
 
 func _cycle_game_mode() -> void:
 	if playing:
