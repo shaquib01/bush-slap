@@ -1,4 +1,6 @@
-// Increment this version whenever the app shell changes so installed clients\n// discard stale cached HTML and pick up the latest deployed game.\nconst CACHE = "bush-slap-v40";
+// Increment this version whenever the app shell changes so installed clients
+// discard stale cached HTML and pick up the latest deployed game.
+const CACHE = "bush-slap-v40";
 const CORE = [
   "/",
   "/index.html",
