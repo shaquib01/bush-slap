@@ -1,0 +1,12 @@
+{
+  "name": "Bush Slap — Catch That Bunny",
+  "short_name": "Bush Slap",
+  "description": "A fast, silly rabbit-reaction game.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#102018",
+  "theme_color": "#172b21",
+  "orientation": "any",
+  "categories": ["games", "entertainment"]
+}
