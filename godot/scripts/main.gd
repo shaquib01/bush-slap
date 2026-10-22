@@ -56,12 +56,14 @@ func _process(delta: float) -> void:
 		if rabbit and is_instance_valid(rabbit):
 			rabbit_age += delta
 			rabbit_phase += delta * 8.0
-			rabbit.position.y = 0.1 + absf(sin(rabbit_phase)) * 0.24
+			# A quick upward pop-in makes each appearance feel like a little ambush.
+			var entrance := clampf(rabbit_age / 0.18, 0.0, 1.0)
+			rabbit.position.y = 0.1 + absf(sin(rabbit_phase)) * 0.24 - (1.0 - entrance) * 0.24
 			if rabbit_visual:
 				rabbit_visual.rotation.y = sin(rabbit_phase * 0.45) * 0.10
-				# Small squash-and-stretch gives the voxel bunny a readable hop rhythm.
+				# Squash-and-stretch is layered over the pop-in without hiding the target.
 				var hop := absf(sin(rabbit_phase))
-				rabbit_visual.scale = Vector3(1.0 + hop * 0.035, 1.0 - hop * 0.045, 1.0 + hop * 0.035)
+				rabbit_visual.scale = Vector3(entrance + hop * 0.035, entrance - hop * 0.045, entrance + hop * 0.035)
 				for ear_index in range(rabbit_ears.size()):
 					var ear := rabbit_ears[ear_index]
 					ear.rotation_degrees.z = sin(rabbit_phase * 0.8 + float(ear_index) * PI) * 7.0
