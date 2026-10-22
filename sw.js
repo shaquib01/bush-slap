@@ -1,4 +1,4 @@
-const CACHE = "bush-slap-v36";
+const CACHE = "bush-slap-v37";
 const CORE = [
   "/",
   "/index.html",
@@ -10,7 +10,10 @@ const CORE = [
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE)
-      .then(cache => cache.addAll(CORE))
+      .then(async cache => {
+        // Keep the offline shell installable even if a decorative asset is unavailable.
+        await Promise.allSettled(CORE.map(path => cache.add(path)));
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -36,9 +39,9 @@ self.addEventListener("fetch", event => {
 
     try {
       const response = await fetch(request);
-      if (response.ok) {
+      if (response.ok && response.type !== "opaque") {
         const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(request, copy));
+        await caches.open(CACHE).then(cache => cache.put(request, copy));
       }
       return response;
     } catch {
