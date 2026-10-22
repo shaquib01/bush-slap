@@ -13,7 +13,7 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 
 - Procedurally generated voxel-style garden, trees and bushes.
 - Blocky white rabbit with upright pink ears, visible feet, paw pads, eye highlights, a pixel tail and a small forelock.
-- Mouse and touch input with a raycast hit target.
+- Mouse and touch input with a raycast hit target, plus keyboard controls: Space slaps toward the centre of the screen and Enter starts/restarts a round.
 - Score, combo, timer and round restart.
 - Camera-attached blocky first-person hand with a three-beat slap swing animation.
 - Rabbit hop bounce and independently swaying ears, plus comic-style SLAP/POW/BONK hit lettering, colorful voxel burst particles, and a brief camera jolt on a successful hit.
