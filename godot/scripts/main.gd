@@ -189,6 +189,21 @@ func _build_hud() -> void:
 	hud_progress.max_value = 100.0
 	hud_progress.value = 100.0
 	hud_progress.show_percentage = false
+	hud_progress.custom_minimum_size = Vector2(0.0, 12.0)
+	var progress_bg := StyleBoxFlat.new()
+	progress_bg.bg_color = Color(0.025, 0.055, 0.075, 0.92)
+	progress_bg.corner_radius_top_left = 6
+	progress_bg.corner_radius_top_right = 6
+	progress_bg.corner_radius_bottom_left = 6
+	progress_bg.corner_radius_bottom_right = 6
+	var progress_fill := StyleBoxFlat.new()
+	progress_fill.bg_color = Color(0.30, 0.91, 0.62)
+	progress_fill.corner_radius_top_left = 6
+	progress_fill.corner_radius_top_right = 6
+	progress_fill.corner_radius_bottom_left = 6
+	progress_fill.corner_radius_bottom_right = 6
+	hud_progress.add_theme_stylebox_override("background", progress_bg)
+	hud_progress.add_theme_stylebox_override("fill", progress_fill)
 	hud_progress.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	hud_progress.offset_left = 18.0
 	hud_progress.offset_top = -22.0
