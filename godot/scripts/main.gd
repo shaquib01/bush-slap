@@ -25,6 +25,7 @@ var combo := 0
 var lives := 3
 var hud_lives: Label
 var best := 0
+var round_history: Array[int] = []
 var playing := false
 var paused := false
 var pause_button: Button
@@ -725,10 +726,18 @@ func _load_best() -> void:
 	var config := ConfigFile.new()
 	if config.load(SAVE_PATH) == OK:
 		best = int(config.get_value("progress", "best_score", 0))
+		var saved_history: Variant = config.get_value("progress", "round_history", [])
+		round_history.clear()
+		if saved_history is Array:
+			for value in saved_history:
+				round_history.append(int(value))
+		while round_history.size() > 5:
+			round_history.pop_front()
 
 func _save_best() -> void:
 	var config := ConfigFile.new()
 	config.set_value("progress", "best_score", best)
+	config.set_value("progress", "round_history", round_history)
 	config.save(SAVE_PATH)
 
 func _escape_rabbit() -> void:
@@ -799,7 +808,15 @@ func _end_round() -> void:
 		pause_button.text = "Ⅱ"
 	_remove_rabbit()
 	var result_reason := "All lives lost!" if lives <= 0 else "Time's up!"
-	_show_overlay("ROUND OVER!", "%s\nScore: %d\nPersonal best: %d\nTap play to try again." % [result_reason, score, best])
+	round_history.append(score)
+	while round_history.size() > 5:
+		round_history.pop_front()
+	_save_best()
+	var history_text := ""
+	for i in range(round_history.size()):
+		var history_score: int = round_history[round_history.size() - 1 - i]
+		history_text += "\n%d. %d points" % [i + 1, history_score]
+	_show_overlay("ROUND OVER!", "%s\nScore: %d\nPersonal best: %d\n\nRECENT ROUNDS%s\n\nTap play to try again." % [result_reason, score, best, history_text])
 	play_button.text = "↻  PLAY AGAIN"
 
 func _show_overlay(title_text: String, body_text: String) -> void:
