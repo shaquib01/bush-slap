@@ -27,6 +27,8 @@ var rabbit_phase := 0.0
 var hud_score: Label
 var hud_time: Label
 var hud_combo: Label
+var hud_top: HBoxContainer
+var overlay_panel: VBoxContainer
 var message_label: Label
 var hit_fx_label: Label
 var overlay: ColorRect
@@ -42,6 +44,8 @@ func _ready() -> void:
 	_build_world()
 	_build_camera()
 	_build_hud()
+	get_viewport().size_changed.connect(_apply_responsive_hud)
+	_apply_responsive_hud()
 	_show_overlay("BUSH SLAP", "Tap or click the blocky rabbit when it pops out. Build a combo and beat your best!")
 	_update_hud()
 
@@ -146,22 +150,22 @@ func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "HUD"
 	add_child(layer)
-	var top := HBoxContainer.new()
-	top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	top.offset_left = 18
-	top.offset_top = 14
-	top.offset_right = -18
-	top.offset_bottom = 66
-	top.add_theme_constant_override("separation", 8)
-	layer.add_child(top)
+	hud_top = HBoxContainer.new()
+	hud_top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	hud_top.offset_left = 18
+	hud_top.offset_top = 14
+	hud_top.offset_right = -18
+	hud_top.offset_bottom = 66
+	hud_top.add_theme_constant_override("separation", 8)
+	layer.add_child(hud_top)
 	hud_score = _hud_label("SCORE  0000", 24)
 	hud_time = _hud_label("TIME  60", 22)
 	hud_combo = _hud_label("COMBO  x0", 22)
-	top.add_child(hud_score)
-	top.add_spacer(false)
-	top.add_child(hud_combo)
-	top.add_spacer(false)
-	top.add_child(hud_time)
+	hud_top.add_child(hud_score)
+	hud_top.add_spacer(false)
+	hud_top.add_child(hud_combo)
+	hud_top.add_spacer(false)
+	hud_top.add_child(hud_time)
 	message_label = _hud_label("TAP THE RABBIT!", 20)
 	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	message_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
@@ -186,28 +190,65 @@ func _build_hud() -> void:
 	overlay.color = Color(0.015, 0.025, 0.07, 0.82)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	layer.add_child(overlay)
-	var panel := VBoxContainer.new()
-	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	panel.offset_left = -260
-	panel.offset_top = -155
-	panel.offset_right = 260
-	panel.offset_bottom = 155
-	panel.add_theme_constant_override("separation", 16)
-	overlay.add_child(panel)
+	overlay_panel = VBoxContainer.new()
+	overlay_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	overlay_panel.offset_left = -260
+	overlay_panel.offset_top = -155
+	overlay_panel.offset_right = 260
+	overlay_panel.offset_bottom = 155
+	overlay_panel.add_theme_constant_override("separation", 16)
+	overlay.add_child(overlay_panel)
 	overlay_title = _hud_label("BUSH SLAP", 42)
 	overlay_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	panel.add_child(overlay_title)
+	overlay_panel.add_child(overlay_title)
 	overlay_body = _hud_label("", 18)
 	overlay_body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	overlay_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	panel.add_child(overlay_body)
+	overlay_panel.add_child(overlay_body)
 	play_button = Button.new()
 	play_button.text = "▶  PLAY"
 	play_button.custom_minimum_size = Vector2(220, 58)
 	play_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	play_button.add_theme_font_size_override("font_size", 24)
 	play_button.pressed.connect(_start_round)
-	panel.add_child(play_button)
+	overlay_panel.add_child(play_button)
+
+
+func _apply_responsive_hud() -> void:
+	# Keep the score row and start/end panel inside narrow phone viewports.
+	var viewport_size := get_viewport().get_visible_rect().size
+	var compact := viewport_size.x < 760.0
+	if hud_top:
+		hud_top.offset_left = 10.0 if compact else 18.0
+		hud_top.offset_right = -10.0 if compact else -18.0
+		hud_top.offset_top = 8.0 if compact else 14.0
+		hud_top.offset_bottom = 48.0 if compact else 66.0
+		hud_top.add_theme_constant_override("separation", 3 if compact else 8)
+	if hud_score:
+		hud_score.add_theme_font_size_override("font_size", 16 if compact else 24)
+	if hud_time:
+		hud_time.add_theme_font_size_override("font_size", 16 if compact else 22)
+	if hud_combo:
+		hud_combo.add_theme_font_size_override("font_size", 15 if compact else 22)
+	if message_label:
+		message_label.add_theme_font_size_override("font_size", 15 if compact else 20)
+		message_label.offset_top = 52.0 if compact else 78.0
+		message_label.offset_left = -160.0 if compact else -240.0
+		message_label.offset_right = 160.0 if compact else 240.0
+		message_label.offset_bottom = 88.0 if compact else 120.0
+	if overlay_panel:
+		var panel_width := maxf(240.0, minf(520.0, viewport_size.x - 28.0))
+		overlay_panel.offset_left = -panel_width * 0.5
+		overlay_panel.offset_right = panel_width * 0.5
+		overlay_panel.offset_top = -130.0 if compact else -155.0
+		overlay_panel.offset_bottom = 130.0 if compact else 155.0
+	if overlay_title:
+		overlay_title.add_theme_font_size_override("font_size", 30 if compact else 42)
+	if overlay_body:
+		overlay_body.add_theme_font_size_override("font_size", 15 if compact else 18)
+	if play_button:
+		play_button.custom_minimum_size = Vector2(180, 50) if compact else Vector2(220, 58)
+		play_button.add_theme_font_size_override("font_size", 20 if compact else 24)
 
 func _hud_label(text_value: String, font_size: int) -> Label:
 	var label := Label.new()
