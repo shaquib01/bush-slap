@@ -500,17 +500,20 @@ func _spawn_score_popup(origin: Vector3, points: int) -> void:
 	tween.chain().tween_callback(popup.queue_free)
 
 func _spawn_voxel_burst(origin: Vector3) -> void:
-	# Small block particles make each hit feel physical without obscuring the playfield.
-	var palette := [Color(1.0, 0.80, 0.16), Color(1.0, 0.28, 0.52), Color(0.24, 0.91, 1.0), Color(0.91, 1.0, 0.63)]
-	for i in range(12):
-		var piece_size := rng.randf_range(0.09, 0.19)
+	# Comic-book hit burst: a denser ring of colored voxel shards with varied spin and travel.
+	var palette := [Color(1.0, 0.80, 0.16), Color(1.0, 0.28, 0.52), Color(0.24, 0.91, 1.0), Color(0.91, 1.0, 0.63), Color(1.0, 0.98, 0.90)]
+	for i in range(18):
+		var piece_size := rng.randf_range(0.075, 0.20)
 		var piece := _add_box(world_root, origin, Vector3.ONE * piece_size, palette[i % palette.size()])
-		var destination := origin + Vector3(rng.randf_range(-1.25, 1.25), rng.randf_range(0.25, 1.6), rng.randf_range(-0.8, 0.7))
+		piece.rotation_degrees = Vector3(rng.randf_range(-35.0, 35.0), rng.randf_range(-35.0, 35.0), rng.randf_range(-35.0, 35.0))
+		var destination := origin + Vector3(rng.randf_range(-1.45, 1.45), rng.randf_range(0.25, 1.75), rng.randf_range(-0.9, 0.8))
+		var duration := rng.randf_range(0.24, 0.44)
 		var tween := create_tween()
 		tween.set_parallel(true)
-		tween.tween_property(piece, "position", destination, rng.randf_range(0.22, 0.42)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tween.tween_property(piece, "scale", Vector3.ZERO, 0.34).set_delay(0.08)
-		tween.tween_callback(piece.queue_free).set_delay(0.46)
+		tween.tween_property(piece, "position", destination, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.tween_property(piece, "rotation_degrees", piece.rotation_degrees + Vector3(rng.randf_range(-180.0, 180.0), rng.randf_range(-180.0, 180.0), rng.randf_range(-180.0, 180.0)), duration)
+		tween.tween_property(piece, "scale", Vector3.ZERO, duration * 0.82).set_delay(0.06)
+		tween.tween_callback(piece.queue_free).set_delay(duration + 0.04)
 
 func _load_best() -> void:
 	var config := ConfigFile.new()
