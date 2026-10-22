@@ -392,6 +392,11 @@ func _spawn_rabbit() -> void:
 		_add_box(rabbit_visual, Vector3(side * 0.27, 0.055, -0.29), Vector3(0.16, 0.045, 0.06), Color(0.94, 0.57, 0.68))
 		_add_box(rabbit_visual, Vector3(side * 0.49, 1.32, -0.20), Vector3(0.15, 0.24, 0.08), Color(1.0, 0.65, 0.72))
 	add_child(rabbit)
+	# A quick, springy pop-in makes the target feel like it jumps out of the bush.
+	rabbit.scale = Vector3(0.72, 0.18, 0.72)
+	var pop_tween := create_tween()
+	pop_tween.tween_property(rabbit, "scale", Vector3(1.06, 1.08, 1.06), 0.13).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	pop_tween.tween_property(rabbit, "scale", Vector3.ONE, 0.10).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	rabbit_age = 0.0
 	rabbit_phase = 0.0
 	var pace := clampf(float(score) / 3500.0, 0.0, 0.35)
