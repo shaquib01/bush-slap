@@ -9,6 +9,9 @@ const SPAWN_MAX := 1.00
 const SAVE_PATH := "user://bush_slap.cfg"
 
 var camera: Camera3D
+var slap_hand: Node3D
+var hand_rest_position := Vector3(0.92, -0.72, -1.85)
+var hand_swinging := false
 var world_root: Node3D
 var rabbit: Area3D
 var rabbit_visual: Node3D
@@ -51,6 +54,9 @@ func _process(delta: float) -> void:
 			rabbit.position.y = 0.1 + absf(sin(rabbit_phase)) * 0.24
 			if rabbit_visual:
 				rabbit_visual.rotation.y = sin(rabbit_phase * 0.45) * 0.10
+				# Small squash-and-stretch gives the voxel bunny a readable hop rhythm.
+				var hop := absf(sin(rabbit_phase))
+				rabbit_visual.scale = Vector3(1.0 + hop * 0.035, 1.0 - hop * 0.045, 1.0 + hop * 0.035)
 			if rabbit_age >= _rabbit_lifetime():
 				_escape_rabbit()
 		if spawn_timer <= 0.0 and (not rabbit or not is_instance_valid(rabbit)):
@@ -69,6 +75,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		pressed = true
 		screen_pos = event.position
 	if pressed and playing:
+		_animate_slap_hand()
 		_try_slap(screen_pos)
 
 func _build_world() -> void:
@@ -105,6 +112,7 @@ func _build_camera() -> void:
 	camera.fov = 55.0
 	add_child(camera)
 	camera.current = true
+	_build_slap_hand()
 	var env := WorldEnvironment.new()
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_SKY
@@ -198,6 +206,36 @@ func _hud_label(text_value: String, font_size: int) -> Label:
 	label.add_theme_constant_override("shadow_offset_x", 2)
 	label.add_theme_constant_override("shadow_offset_y", 3)
 	return label
+
+
+func _build_slap_hand() -> void:
+	# Camera-attached blocky glove/forearm: a first-person slap cue that works on mouse and touch.
+	slap_hand = Node3D.new()
+	slap_hand.name = "FirstPersonSlapHand"
+	slap_hand.position = hand_rest_position
+	slap_hand.rotation_degrees = Vector3(-8, -16, -12)
+	camera.add_child(slap_hand)
+	var sleeve := _add_box(slap_hand, Vector3(0.0, -0.30, 0.12), Vector3(0.42, 0.68, 0.42), Color(0.13, 0.40, 0.76))
+	sleeve.name = "PixelBlueSleeve"
+	_add_box(slap_hand, Vector3(0.0, 0.05, -0.10), Vector3(0.52, 0.40, 0.46), Color(0.96, 0.72, 0.52))
+	_add_box(slap_hand, Vector3(0.0, 0.20, -0.17), Vector3(0.50, 0.22, 0.30), Color(1.0, 0.83, 0.66))
+	for i in range(4):
+		_add_box(slap_hand, Vector3(-0.18 + float(i) * 0.12, -0.015, -0.34), Vector3(0.105, 0.23, 0.13), Color(0.96, 0.72, 0.52))
+	_add_box(slap_hand, Vector3(0.29, 0.02, -0.12), Vector3(0.16, 0.25, 0.16), Color(0.96, 0.72, 0.52))
+
+func _animate_slap_hand() -> void:
+	if not slap_hand or not is_instance_valid(slap_hand) or hand_swinging:
+		return
+	hand_swinging = true
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(slap_hand, "position", hand_rest_position + Vector3(-0.48, 0.20, 0.48), 0.075).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tween.tween_property(slap_hand, "rotation_degrees", Vector3(-2, 18, 24), 0.075).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.chain().tween_property(slap_hand, "position", hand_rest_position + Vector3(0.18, -0.04, -0.12), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(slap_hand, "rotation_degrees", Vector3(12, -25, -32), 0.10)
+	tween.chain().tween_property(slap_hand, "position", hand_rest_position, 0.16).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(slap_hand, "rotation_degrees", Vector3(-8, -16, -12), 0.16)
+	tween.chain().tween_callback(func(): hand_swinging = false)
 
 func _make_tree(origin: Vector3, scale_factor: float) -> void:
 	_add_box(world_root, origin + Vector3(0, 1.0 * scale_factor, 0), Vector3(0.42, 2.0, 0.42) * scale_factor, Color(0.35, 0.19, 0.10))
