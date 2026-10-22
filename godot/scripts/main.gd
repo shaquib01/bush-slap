@@ -29,6 +29,7 @@ var playing := false
 var paused := false
 var pause_button: Button
 var rabbit_phase := 0.0
+var rabbit_is_golden := false
 var hud_score: Label
 var hud_time: Label
 var hud_combo: Label
@@ -529,6 +530,8 @@ func _spawn_rabbit() -> void:
 	var spot: Vector3 = bush_positions[next_bush_index]
 	rabbit = Area3D.new()
 	rabbit.name = "RabbitTarget"
+	# Rare golden rabbits are high-value targets; the gold palette makes the bonus readable instantly.
+	rabbit_is_golden = rng.randf() < 0.12
 	rabbit_home_position = spot + Vector3(0, 0.1, -0.1)
 	rabbit.position = rabbit_home_position
 	rabbit.collision_layer = 1
@@ -543,8 +546,10 @@ func _spawn_rabbit() -> void:
 	rabbit.add_child(rabbit_visual)
 	# Chunky white body, square head, pink inner ears, visible feet and cheeks.
 	rabbit_ears.clear()
-	_add_box(rabbit_visual, Vector3(0, 0.75, 0), Vector3(0.85, 0.95, 0.62), Color(0.91, 0.94, 1.0))
-	_add_box(rabbit_visual, Vector3(0, 1.45, -0.03), Vector3(0.88, 0.78, 0.70), Color(1.0, 0.98, 0.94))
+	var fur_color := Color(1.0, 0.73, 0.17) if rabbit_is_golden else Color(0.91, 0.94, 1.0)
+	var head_color := Color(1.0, 0.86, 0.32) if rabbit_is_golden else Color(1.0, 0.98, 0.94)
+	_add_box(rabbit_visual, Vector3(0, 0.75, 0), Vector3(0.85, 0.95, 0.62), fur_color)
+	_add_box(rabbit_visual, Vector3(0, 1.45, -0.03), Vector3(0.88, 0.78, 0.70), head_color)
 	_add_box(rabbit_visual, Vector3(-0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
 	_add_box(rabbit_visual, Vector3(0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
 	_add_box(rabbit_visual, Vector3(0, 1.34, -0.43), Vector3(0.18, 0.12, 0.06), Color(0.94, 0.43, 0.61))
@@ -559,15 +564,15 @@ func _spawn_rabbit() -> void:
 	_add_box(rabbit_visual, Vector3(-0.28, 1.59, -0.425), Vector3(0.045, 0.045, 0.025), Color(1.0, 1.0, 1.0))
 	_add_box(rabbit_visual, Vector3(0.22, 1.59, -0.425), Vector3(0.045, 0.045, 0.025), Color(1.0, 1.0, 1.0))
 	# Puffy pixel tail and a tiny forelock reinforce the toy-like voxel silhouette.
-	_add_box(rabbit_visual, Vector3(0, 0.78, 0.36), Vector3(0.38, 0.38, 0.34), Color(1.0, 0.99, 0.94))
-	_add_box(rabbit_visual, Vector3(0, 1.91, 0.0), Vector3(0.24, 0.16, 0.22), Color(1.0, 0.99, 0.94))
+	_add_box(rabbit_visual, Vector3(0, 0.78, 0.36), Vector3(0.38, 0.38, 0.34), head_color)
+	_add_box(rabbit_visual, Vector3(0, 1.91, 0.0), Vector3(0.24, 0.16, 0.22), head_color)
 	for side in [-1.0, 1.0]:
 		var ear_pivot := Node3D.new()
 		ear_pivot.position = Vector3(side * 0.23, 1.82, 0.02)
 		ear_pivot.name = "LeftEarPivot" if side < 0.0 else "RightEarPivot"
 		rabbit_visual.add_child(ear_pivot)
 		rabbit_ears.append(ear_pivot)
-		_add_box(ear_pivot, Vector3(0, 0.28, 0), Vector3(0.24, 0.70, 0.22), Color(0.96, 0.95, 0.91))
+		_add_box(ear_pivot, Vector3(0, 0.28, 0), Vector3(0.24, 0.70, 0.22), head_color)
 		_add_box(ear_pivot, Vector3(0, 0.28, -0.115), Vector3(0.13, 0.50, 0.035), Color(0.95, 0.42, 0.63))
 		_add_box(rabbit_visual, Vector3(side * 0.27, 0.15, -0.06), Vector3(0.34, 0.18, 0.48), Color(0.98, 0.94, 0.91))
 		_add_box(rabbit_visual, Vector3(side * 0.27, 0.055, -0.29), Vector3(0.16, 0.045, 0.06), Color(0.94, 0.57, 0.68))
@@ -592,7 +597,9 @@ func _try_slap(screen_pos: Vector2) -> void:
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty() and rabbit and is_instance_valid(rabbit) and hit.collider == rabbit:
 		# Reward quick reactions and sustained streaks, while keeping the core tap mechanic simple.
-		var earned_points := 100 + combo * 15
+		var earned_points := (500 if rabbit_is_golden else 100) + combo * 15
+		if rabbit_is_golden:
+			message_label.text = "GOLDEN BUNNY! +500"
 		var perfect_timing := rabbit_age <= 0.48
 		if perfect_timing:
 			earned_points += 75
@@ -605,7 +612,9 @@ func _try_slap(screen_pos: Vector2) -> void:
 		if score > best:
 			best = score
 			_save_best()
-		if perfect_timing:
+		if rabbit_is_golden:
+			message_label.text = "GOLDEN BUNNY! +500"
+		elif perfect_timing:
 			message_label.text = "PERFECT TIMING! +75"
 		elif streak_bonus > 0:
 			message_label.text = "STREAK BONUS! +%d" % streak_bonus
