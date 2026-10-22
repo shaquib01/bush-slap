@@ -135,7 +135,7 @@ function syncRabbit3d(dt=0){
  arms3d.rotation.x=-Math.max(0,handSwing)*.95;arms3d.position.y=-Math.max(0,handSwing)*.38;
 }
 function draw(){
- if(renderer3d&&scene3d){syncRabbit3d();renderer3d.render(scene3d,camera3d)}
+ if(renderer3d&&scene3d){try{syncRabbit3d();renderer3d.render(scene3d,camera3d);const warning=c?.parentElement?.querySelector('.renderer-warning');if(warning)warning.remove()}catch(err){console.error('3D frame render failed',err);show3dStatus('3D rendering failed — reload the game');renderer3d=null}}
  x.clearRect(0,0,W,H);
  particles.forEach(p=>{x.globalAlpha=Math.max(0,p.life);x.fillStyle=p.color;x.fillRect(p.x,p.y,p.size,p.size);x.globalAlpha=1});
  texts.forEach(t=>{x.globalAlpha=Math.min(1,t.life*2);x.fillStyle=t.color;x.font='1000 27px system-ui';x.textAlign='center';x.strokeStyle='#14213c';x.lineWidth=4;x.strokeText(t.text,t.x,t.y);x.fillText(t.text,t.x,t.y);x.globalAlpha=1});
