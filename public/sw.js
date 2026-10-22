@@ -4,9 +4,9 @@ const CACHE = "bush-slap-v46";
 const CORE = [
   "/",
   "/index.html",
-  "/manifest.json",
-  "/assets/jungle-backdrop.svg",
-  "/assets/slap-burst.svg"
+  "./manifest.json",
+  "./assets/jungle-backdrop.svg",
+  "./assets/slap-burst.svg"
 ];
 
 self.addEventListener("install", event => {
