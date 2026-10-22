@@ -18,6 +18,7 @@ var rabbit_visual: Node3D
 var rabbit_ears: Array[Node3D] = []
 var spawn_timer := 0.0
 var rabbit_age := 0.0
+var rabbit_home_position := Vector3.ZERO
 var round_time := ROUND_SECONDS
 var score := 0
 var combo := 0
@@ -58,7 +59,7 @@ func _process(delta: float) -> void:
 			rabbit_phase += delta * 8.0
 			# A quick upward pop-in makes each appearance feel like a little ambush.
 			var entrance := clampf(rabbit_age / 0.18, 0.0, 1.0)
-			rabbit.position.y = 0.1 + absf(sin(rabbit_phase)) * 0.24 - (1.0 - entrance) * 0.24
+			rabbit.position = rabbit_home_position + Vector3(sin(rabbit_phase * 0.43) * 0.14, 0.1 + absf(sin(rabbit_phase)) * 0.24 - (1.0 - entrance) * 0.24, cos(rabbit_phase * 0.34) * 0.07)
 			if rabbit_visual:
 				rabbit_visual.rotation.y = sin(rabbit_phase * 0.45) * 0.10
 				# Squash-and-stretch is layered over the pop-in without hiding the target.
@@ -356,7 +357,8 @@ func _spawn_rabbit() -> void:
 	var spot: Vector3 = bush_positions[rng.randi_range(0, bush_positions.size() - 1)]
 	rabbit = Area3D.new()
 	rabbit.name = "RabbitTarget"
-	rabbit.position = spot + Vector3(0, 0.1, -0.1)
+	rabbit_home_position = spot + Vector3(0, 0.1, -0.1)
+	rabbit.position = rabbit_home_position
 	rabbit.collision_layer = 1
 	rabbit.collision_mask = 0
 	var collision := CollisionShape3D.new()
