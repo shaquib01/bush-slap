@@ -137,6 +137,7 @@ func _build_world() -> void:
 	_make_cloud(Vector3(-5.8, 6.2, -5.8), 1.0)
 	_make_cloud(Vector3(1.8, 7.0, -7.0), 0.82)
 	_make_cloud(Vector3(7.0, 5.7, -4.8), 0.72)
+	_make_voxel_sun(Vector3(0.0, 7.8, -9.0))
 	# Six bushes define easy-to-read rabbit spawn zones.
 	bush_positions = [
 		Vector3(-4.5, 0.0, -2.0), Vector3(-2.0, 0.0, -3.7),
@@ -382,6 +383,29 @@ func _make_tree(origin: Vector3, scale_factor: float) -> void:
 		var height := rng.randf_range(1.4, 3.0) * scale_factor
 		var size := rng.randf_range(0.45, 0.9) * scale_factor
 		_add_box(world_root, origin + Vector3(cos(angle) * radius, height, sin(angle) * radius), Vector3.ONE * size, greens[i % greens.size()])
+
+func _make_voxel_sun(origin: Vector3) -> void:
+	# A chunky sunset sun with stepped rays adds a warm comic-panel focal point to the sky.
+	var sun_root := Node3D.new()
+	sun_root.name = "VoxelSunburst"
+	sun_root.position = origin
+	world_root.add_child(sun_root)
+	var gold := Color(1.0, 0.72, 0.27)
+	var bright := Color(1.0, 0.88, 0.48)
+	_add_box(sun_root, Vector3.ZERO, Vector3(1.45, 1.45, 0.22), bright)
+	_add_box(sun_root, Vector3(0.0, 0.0, 0.13), Vector3(0.92, 0.92, 0.08), Color(1.0, 0.94, 0.67))
+	var rays: Array[Vector3] = [
+		Vector3(0.0, 1.05, 0.0), Vector3(0.0, -1.05, 0.0),
+		Vector3(1.05, 0.0, 0.0), Vector3(-1.05, 0.0, 0.0),
+		Vector3(0.78, 0.78, 0.0), Vector3(-0.78, 0.78, 0.0),
+		Vector3(0.78, -0.78, 0.0), Vector3(-0.78, -0.78, 0.0)
+	]
+	for i in range(rays.size()):
+		var ray_size := Vector3(0.28, 0.28, 0.16)
+		if i < 4:
+			ray_size = Vector3(0.24, 0.42, 0.16) if i < 2 else Vector3(0.42, 0.24, 0.16)
+		var ray := _add_box(sun_root, rays[i], ray_size, gold if i % 2 == 0 else bright)
+		ray.rotation_degrees.z = 45.0 if i >= 4 else 0.0
 
 func _make_cloud(origin: Vector3, scale_factor: float) -> void:
 	# A parent node lets the stepped cloud drift gently as one cohesive voxel silhouette.
