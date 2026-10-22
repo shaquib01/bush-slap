@@ -1,0 +1,30 @@
+name: Godot 4 prototype check
+
+on:
+  push:
+    branches: [godot4-prototype]
+    paths:
+      - "godot/**"
+      - ".github/workflows/godot-check.yml"
+  pull_request:
+    branches: [godot4-prototype]
+    paths:
+      - "godot/**"
+      - ".github/workflows/godot-check.yml"
+  workflow_dispatch:
+
+jobs:
+  editor-import-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.4.1
+          use-dotnet: false
+
+      - name: Verify Godot editor can import the project
+        run: godot --headless --path godot --editor --quit
