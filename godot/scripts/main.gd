@@ -42,6 +42,8 @@ var rng := RandomNumberGenerator.new()
 var bush_positions: Array[Vector3] = []
 var fireflies: Array[MeshInstance3D] = []
 var firefly_origins: Array[Vector3] = []
+var cloud_nodes: Array[Node3D] = []
+var cloud_origins: Array[Vector3] = []
 # Reuse identical materials across voxel blocks to reduce resource count and draw overhead.
 var material_cache: Dictionary = {}
 
@@ -58,6 +60,10 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var ambient_time := float(Time.get_ticks_msec()) * 0.001
+	for i in range(cloud_nodes.size()):
+		var cloud := cloud_nodes[i]
+		if is_instance_valid(cloud):
+			cloud.position = cloud_origins[i] + Vector3(sin(ambient_time * 0.12 + float(i) * 1.8) * 0.32, sin(ambient_time * 0.18 + float(i)) * 0.08, 0.0)
 	for i in range(fireflies.size()):
 		var mote := fireflies[i]
 		if is_instance_valid(mote):
@@ -378,7 +384,13 @@ func _make_tree(origin: Vector3, scale_factor: float) -> void:
 		_add_box(world_root, origin + Vector3(cos(angle) * radius, height, sin(angle) * radius), Vector3.ONE * size, greens[i % greens.size()])
 
 func _make_cloud(origin: Vector3, scale_factor: float) -> void:
-	# Stepped cubes give the sky a deliberately handmade voxel silhouette.
+	# A parent node lets the stepped cloud drift gently as one cohesive voxel silhouette.
+	var cloud_root := Node3D.new()
+	cloud_root.name = "DriftingVoxelCloud"
+	cloud_root.position = origin
+	world_root.add_child(cloud_root)
+	cloud_nodes.append(cloud_root)
+	cloud_origins.append(origin)
 	var cloud_blocks: Array[Vector3] = [
 		Vector3(-0.72, 0.0, 0.0), Vector3(-0.25, 0.20, 0.0),
 		Vector3(0.22, 0.08, 0.0), Vector3(0.68, -0.02, 0.0),
@@ -388,7 +400,7 @@ func _make_cloud(origin: Vector3, scale_factor: float) -> void:
 		var block_size := Vector3(0.82, 0.34, 0.42) * scale_factor
 		if i == 1 or i == 4:
 			block_size.y *= 1.18
-		var block := _add_box(world_root, origin + cloud_blocks[i] * scale_factor, block_size, Color(0.78, 0.91, 1.0))
+		var block := _add_box(cloud_root, cloud_blocks[i] * scale_factor, block_size, Color(0.78, 0.91, 1.0))
 		var cloud_material := (block.material_override as StandardMaterial3D).duplicate() as StandardMaterial3D
 		cloud_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		cloud_material.albedo_color = Color(0.78, 0.91, 1.0, 0.76)
