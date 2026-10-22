@@ -412,13 +412,15 @@ func _try_slap(screen_pos: Vector2) -> void:
 	query.collide_with_areas = true
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty() and rabbit and is_instance_valid(rabbit) and hit.collider == rabbit:
-		score += 100 + combo * 15
+		var earned_points := 100 + combo * 15
+		score += earned_points
 		combo += 1
 		if score > best:
 			best = score
 			_save_best()
 		message_label.text = ["NICE SLAP!", "COMBO!", "BUNNY BONK!", "PERFECT!"][rng.randi_range(0, 3)]
 		_spawn_voxel_burst(rabbit.position + Vector3(0, 1.25, 0))
+		_spawn_score_popup(rabbit.position + Vector3(0, 2.25, 0), earned_points)
 		_play_hit_feedback()
 		_show_hit_fx()
 		_remove_rabbit()
@@ -454,6 +456,24 @@ func _show_hit_fx() -> void:
 	tween.tween_property(hit_fx_label, "scale", Vector2(1.15, 1.15), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(hit_fx_label, "rotation", 0.0, 0.22)
 	tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.48).set_delay(0.24)
+
+func _spawn_score_popup(origin: Vector3, points: int) -> void:
+	# Floating score text reinforces the reward without adding permanent HUD clutter.
+	var popup := Label3D.new()
+	popup.name = "ScorePopup"
+	popup.text = "+%d" % points
+	popup.position = origin
+	popup.font_size = 48
+	popup.pixel_size = 0.01
+	popup.modulate = Color(1.0, 0.86, 0.22, 1.0)
+	popup.outline_size = 8
+	popup.outline_modulate = Color(0.10, 0.08, 0.16, 1.0)
+	add_child(popup)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(popup, "position", origin + Vector3(0.0, 0.9, 0.0), 0.48).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(popup, "modulate:a", 0.0, 0.48).set_delay(0.12)
+	tween.chain().tween_callback(popup.queue_free)
 
 func _spawn_voxel_burst(origin: Vector3) -> void:
 	# Small block particles make each hit feel physical without obscuring the playfield.
