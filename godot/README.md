@@ -11,14 +11,15 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 
 ## Prototype features
 
-- Procedurally generated voxel-style garden, trees and bushes.
+- Procedurally generated voxel-style garden, trees, bushes, stepped sunburst and drifting clouds.
 - Blocky white rabbit with upright pink ears, visible feet, paw pads, eye highlights, a pixel tail and a small forelock.
 - Mouse and touch input with a raycast hit target, plus keyboard controls: Space slaps toward the centre of the screen and Enter starts/restarts a round.
 - Score, combo, timer and round restart.
 - Camera-attached blocky first-person hand with a three-beat slap swing animation.
-- Rabbit pop-in entrance, gentle side-to-side / forward-back movement, hop bounce and independently swaying ears, plus comic-style SLAP/POW/BONK hit lettering, floating +points popups, colorful voxel burst particles, a brief camera jolt on a successful hit, and a red MISS! cue on missed taps.
-- Slightly more forgiving rabbit hitbox and longer appearance window to improve touch play.
-- More readable target bushes with bright leaf/berry pixels, foreground stones, and small trail markers.
+- Rabbit pop-in entrance, gentle side-to-side / forward-back movement and independently swaying ears.
+- Comic-style SLAP/POW/BONK hit lettering, floating +points popups, colorful voxel burst particles, brief camera jolt on a successful hit, and red MISS! cue on missed taps.
+- Rabbits avoid spawning from the same bush twice consecutively.
+- More readable target bushes with bright leaf/berry pixels, foreground stones and trail markers.
 - Responsive HUD that reduces score, timer, combo, prompt and overlay sizing on narrow viewports and updates when the viewport changes.
 - Personal-best score saved locally with Godot's user data configuration.
 - Difficulty ramps gently: rabbit time and spawn gaps tighten gradually with a lower bound.
@@ -26,15 +27,15 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 
 ## Automated checks and browser build
 
-The GitHub Actions workflow at `.github/workflows/godot-check.yml` runs an editor import check, installs the matching Godot 4.4.1 export templates, and attempts a Web export using `export_presets.cfg`. When successful, it uploads the output as the `bush-slap-godot-web` workflow artifact for 14 days.
+The GitHub Actions workflow at `.github/workflows/godot-check.yml` runs an editor import check, headless scene smoke test, and Web export. A successful run uploads `bush-slap-godot-web` as a downloadable workflow artifact for 14 days.
 
-To inspect the workflow, open the **Actions** tab in the repository and select **Godot 4 prototype check**. A successful Vercel status alone is not proof that the Godot Web export passed. The exported artifact must contain `index.html` and the Godot Web runtime files before it is deployed to a separate preview site.
+A separate workflow, `.github/workflows/deploy-godot-pages.yml`, attempts to publish the prototype to GitHub Pages. **One-time repository setup is required:** open [Settings → Pages](https://github.com/shaquib01/bush-slap/settings/pages), choose **GitHub Actions** under **Build and deployment**, and save. The initial deployment currently fails at the final Pages deployment step because Pages is not enabled for this repository; the Godot browser export and Pages artifact upload themselves succeeded. After enabling Pages, open the [Actions tab](https://github.com/shaquib01/bush-slap/actions) and rerun the failed **Deploy Bush Slap browser preview** workflow, or push a new commit to this branch. Only share a preview URL after a successful deployment and a real browser smoke test.
 
 ## Current limitations
 
-This is an early prototype foundation, not a verified release. The art is built from procedural cubes and needs the final approved concept-art assets, further expressive rabbit/ear animation, audio, accessibility review, and performance tuning. Responsive layout code is in place but still needs runtime testing on actual phone aspect ratios. Recent face, tail and paw details are still placeholder geometry rather than final character art. Personal best is saved locally; online accounts, cloud sync, and global leaderboards are not implemented.
+This is an early prototype foundation, not a verified release. The art is built from procedural cubes and needs the final approved concept-art assets, more expressive character animation, audio, accessibility review and performance tuning. Responsive layout code is in place but still needs runtime testing on actual phone aspect ratios. Face, tail and paw details are placeholder geometry rather than final character art. Personal best is saved locally; online accounts, cloud sync and global leaderboards are not implemented.
 
-The scene and web export have not yet been verified in a real Godot runtime or on actual devices. CI export success is the next validation gate; after that, test desktop and mobile browsers and verify Android TV / Apple TV compatibility individually before replacing or redirecting the live website.
+CI confirms the editor import, headless scene smoke test and Web export, but that is not the same as testing gameplay in a real browser or on actual devices. Test desktop and mobile browsers first, then verify Android TV / Apple TV compatibility individually before replacing or redirecting the live website.
 
 ## Browser requirements
 
