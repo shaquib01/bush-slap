@@ -19,13 +19,14 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 - Rabbit hop bounce and independently swaying ears, plus comic-style SLAP/POW/BONK hit lettering, colorful voxel burst particles, and a brief camera jolt on a successful hit.
 - Slightly more forgiving rabbit hitbox and longer appearance window to improve touch play.
 - More readable target bushes with bright leaf/berry pixels, foreground stones, and small trail markers.
+- Responsive HUD that reduces score, timer, combo, prompt and overlay sizing on narrow viewports and updates when the viewport changes.
 - Personal-best score saved locally with Godot's user data configuration.
 - Difficulty ramps gently: rabbit time and spawn gaps tighten gradually with a lower bound.
 - No visible level number.
 
 ## Current limitations
 
-This is an early prototype foundation, not a verified release. The art is built from procedural cubes and needs the final approved concept-art assets, further expressive rabbit/ear animation, audio, accessibility review, and performance tuning. Recent face, tail and paw details are still placeholder geometry rather than final character art. Personal best is saved locally; online accounts, cloud sync, and global leaderboards are not implemented. The scene has not yet been run through the Godot editor or tested on real devices, so syntax/runtime and input behavior still need validation.
+This is an early prototype foundation, not a verified release. The art is built from procedural cubes and needs the final approved concept-art assets, further expressive rabbit/ear animation, audio, accessibility review, and performance tuning. Responsive layout code is in place but still needs runtime testing on actual phone aspect ratios. Recent face, tail and paw details are still placeholder geometry rather than final character art. Personal best is saved locally; online accounts, cloud sync, and global leaderboards are not implemented. The scene has not yet been run through the Godot editor or tested on real devices, so syntax/runtime and input behavior still need validation.
 
 ## Automated project check
 
