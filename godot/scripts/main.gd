@@ -40,6 +40,8 @@ var overlay_body: Label
 var play_button: Button
 var rng := RandomNumberGenerator.new()
 var bush_positions: Array[Vector3] = []
+var fireflies: Array[MeshInstance3D] = []
+var firefly_origins: Array[Vector3] = []
 # Reuse identical materials across voxel blocks to reduce resource count and draw overhead.
 var material_cache: Dictionary = {}
 
@@ -55,6 +57,14 @@ func _ready() -> void:
 	_update_hud()
 
 func _process(delta: float) -> void:
+	var ambient_time := float(Time.get_ticks_msec()) * 0.001
+	for i in range(fireflies.size()):
+		var mote := fireflies[i]
+		if is_instance_valid(mote):
+			var origin := firefly_origins[i]
+			mote.position = origin + Vector3(sin(ambient_time * 0.8 + float(i)) * 0.18, sin(ambient_time * 1.35 + float(i) * 1.7) * 0.16, cos(ambient_time * 0.65 + float(i)) * 0.12)
+			var pulse := 0.75 + 0.25 * sin(ambient_time * 2.0 + float(i))
+			mote.scale = Vector3.ONE * pulse
 	if playing:
 		round_time -= delta
 		spawn_timer -= delta
@@ -132,6 +142,17 @@ func _build_world() -> void:
 		_add_box(world_root, Vector3(x, 0.02, z), Vector3(0.12, 0.12, 0.12), col)
 		if i % 3 == 0:
 			_add_box(world_root, Vector3(x + 0.13, 0.015, z + 0.08), Vector3(0.20, 0.06, 0.14), Color(0.48, 0.49, 0.43))
+	# Warm, emissive pixel motes drift above the garden to add depth without heavy particles.
+	for i in range(12):
+		var mote_origin := Vector3(rng.randf_range(-5.2, 5.2), rng.randf_range(0.65, 2.2), rng.randf_range(-3.2, 3.5))
+		var mote := _add_box(world_root, mote_origin, Vector3.ONE * 0.075, Color(0.96, 0.91, 0.47))
+		var mote_material := mote.material_override as StandardMaterial3D
+		mote_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mote_material.emission_enabled = true
+		mote_material.emission = Color(0.82, 0.67, 0.23)
+		mote_material.emission_energy_multiplier = 1.4
+		fireflies.append(mote)
+		firefly_origins.append(mote_origin)
 	# Tiny blocky trail markers guide the eye toward the rabbit spawn area.
 	for i in range(8):
 		var z := 5.4 - float(i) * 1.15
