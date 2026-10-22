@@ -207,14 +207,30 @@ function init3d(){
    // Warm sun disk adds a readable focal point to the distant sky.
    const sunDisk=new THREE.Mesh(new THREE.BoxGeometry(1.15,1.15,.12),new THREE.MeshBasicMaterial({color:environment==='sunset'?'#ffb66e':'#fff0b0'}));sunDisk.position.set(-5.7,6.8,-30);world3d.add(sunDisk);
    // Color-rich voxel canopy: layered jewel-tone trees, crystal flowers and lantern arches.
-   const canopyColors=['#20a84b','#36d96b','#8ee34e','#ff6fae','#ff9c43','#42d9e8','#9d7bff','#f7d64a'];
-   for(let i=0;i<18;i++){
-    const side=i%2===0?-1:1,z=-1-(i*1.82),x=side*(4.9+(i%4)*.66),tree=new THREE.Group();tree.position.set(x,0,z);tree.userData.swayPhase=i*.61;tree.userData.canopy=true;
-    const trunk=['#70452e','#8a5836','#5a453d'][i%3];box(tree,.34,1.5,.34,trunk,0,.72,0);
-    box(tree,1.25,.72,1.05,canopyColors[i%canopyColors.length],0,1.65,0);
-    box(tree,.86,.62,.82,canopyColors[(i+1)%canopyColors.length],-.28,2.08,.04);
-    box(tree,.55,.45,.55,canopyColors[(i+3)%canopyColors.length],.3,2.32,-.02);
-    box(tree,.22,.12,.12,['#fff3a6','#ffdcf0','#b8fff4'][i%3],-.16,1.83,.54);
+   // Deep-green Minecraft canopy: layered leaf cubes with highlights, shadows and pixel clusters.
+   const canopyColors=['#176b32','#21883b','#2da847','#38bd4e','#54d957','#78e34d','#9be85a','#12602e','#2e9c3f'];
+   const canopyShade=['#104b2b','#175d30','#1b7135','#21863a'];
+   for(let i=0;i<26;i++){
+    const side=i%2===0?-1:1,z=-1-(i*1.34),x=side*(4.45+(i%5)*.58),tree=new THREE.Group();
+    tree.position.set(x,0,z);tree.userData.swayPhase=i*.61;tree.userData.canopy=true;tree.userData.canopyBaseY=0;
+    const trunk=['#68432c','#805033','#553c2b'][i%3];box(tree,.38,1.65,.38,trunk,0,.78,0);
+    // Main crown: five overlapping cube layers, mostly green with a darker underside.
+    box(tree,1.48,.68,1.18,canopyShade[i%canopyShade.length],0,1.55,0);
+    box(tree,1.36,.58,1.12,canopyColors[i%canopyColors.length],0,1.84,.015);
+    box(tree,1.02,.58,.96,canopyColors[(i+2)%canopyColors.length],-.25,2.18,.06);
+    box(tree,.82,.48,.78,canopyColors[(i+4)%canopyColors.length],.27,2.43,-.02);
+    box(tree,.46,.36,.48,canopyColors[(i+5)%canopyColors.length],-.02,2.77,-.04);
+    // Small leaf pixels build a jagged, chunky canopy silhouette.
+    for(let p=0;p<9;p++){
+     const px=((p%3)-1)*.38+(Math.floor(p/3)%2)*.12,py=1.55+Math.floor(p/3)*.29,pz=(p%2)*.28+.22;
+     box(tree,.22,.2,.22,canopyColors[(i+p*2)%canopyColors.length],px,py,pz);
+    }
+    // Bright sunlit leaf pixels on the front, contrasted by dark green edge blocks.
+    for(let p=0;p<4;p++)box(tree,.14,.13,.12,['#a4f06b','#83e85b','#c0f58a','#62d94c'][(i+p)%4],-.42+(p%2)*.58,1.9+Math.floor(p/2)*.34,.59);
+    box(tree,.18,.15,.14,'#0e5128',-.64,1.52,.28);box(tree,.18,.15,.14,'#0e5128',.63,1.7,.22);
+    // A few restrained flower/fruit pixels for variety without losing the green identity.
+    if(i%4===0)box(tree,.13,.13,.13,'#ffcf54',.28,2.05,.62);
+    if(i%5===0)box(tree,.12,.12,.12,'#ff7aa8',-.25,2.3,.54);
     world3d.add(tree);worldProps3d.push(tree);
    }
    // Floating, colorful pixel crystals in the far sky; all are lightweight meshes.
