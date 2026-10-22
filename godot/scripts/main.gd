@@ -2,9 +2,11 @@ extends Node3D
 ## First playable Godot 4 prototype. Procedural voxel art keeps this prototype asset-free.
 
 const ROUND_SECONDS := 60.0
-const RABBIT_LIFETIME := 2.25
-const SPAWN_MIN := 0.65
-const SPAWN_MAX := 1.15
+const BASE_RABBIT_LIFETIME := 2.65
+const MIN_RABBIT_LIFETIME := 1.55
+const SPAWN_MIN := 0.58
+const SPAWN_MAX := 1.00
+const SAVE_PATH := "user://bush_slap.cfg"
 
 var camera: Camera3D
 var world_root: Node3D
@@ -22,6 +24,7 @@ var hud_score: Label
 var hud_time: Label
 var hud_combo: Label
 var message_label: Label
+var hit_fx_label: Label
 var overlay: ColorRect
 var overlay_title: Label
 var overlay_body: Label
@@ -31,6 +34,7 @@ var bush_positions: Array[Vector3] = []
 
 func _ready() -> void:
 	rng.randomize()
+	_load_best()
 	_build_world()
 	_build_camera()
 	_build_hud()
@@ -44,10 +48,10 @@ func _process(delta: float) -> void:
 		if rabbit and is_instance_valid(rabbit):
 			rabbit_age += delta
 			rabbit_phase += delta * 8.0
-			rabbit.position.y = 0.1 + absf(sin(rabbit_phase)) * 0.20
+			rabbit.position.y = 0.1 + absf(sin(rabbit_phase)) * 0.24
 			if rabbit_visual:
 				rabbit_visual.rotation.y = sin(rabbit_phase * 0.45) * 0.10
-			if rabbit_age >= RABBIT_LIFETIME:
+			if rabbit_age >= _rabbit_lifetime():
 				_escape_rabbit()
 		if spawn_timer <= 0.0 and (not rabbit or not is_instance_valid(rabbit)):
 			_spawn_rabbit()
@@ -146,6 +150,18 @@ func _build_hud() -> void:
 	message_label.offset_right = 240
 	message_label.offset_bottom = 120
 	layer.add_child(message_label)
+	hit_fx_label = _hud_label("SLAP!", 48)
+	hit_fx_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hit_fx_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	hit_fx_label.offset_left = -190
+	hit_fx_label.offset_right = 190
+	hit_fx_label.offset_top = -65
+	hit_fx_label.offset_bottom = 10
+	hit_fx_label.scale = Vector2(0.4, 0.4)
+	hit_fx_label.modulate.a = 0.0
+	hit_fx_label.add_theme_color_override("font_color", Color(1.0, 0.83, 0.18))
+	hit_fx_label.add_theme_font_size_override("font_size", 54)
+	layer.add_child(hit_fx_label)
 	overlay = ColorRect.new()
 	overlay.color = Color(0.015, 0.025, 0.07, 0.82)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -251,7 +267,8 @@ func _spawn_rabbit() -> void:
 	add_child(rabbit)
 	rabbit_age = 0.0
 	rabbit_phase = 0.0
-	spawn_timer = rng.randf_range(SPAWN_MIN, SPAWN_MAX)
+	var pace := clampf(float(score) / 3500.0, 0.0, 0.35)
+	spawn_timer = rng.randf_range(SPAWN_MIN, SPAWN_MAX) * (1.0 - pace)
 
 func _try_slap(screen_pos: Vector2) -> void:
 	var from := camera.project_ray_origin(screen_pos)
@@ -263,14 +280,44 @@ func _try_slap(screen_pos: Vector2) -> void:
 	if not hit.is_empty() and rabbit and is_instance_valid(rabbit) and hit.collider == rabbit:
 		score += 100 + combo * 15
 		combo += 1
-		best = maxi(best, score)
+		if score > best:
+			best = score
+			_save_best()
 		message_label.text = ["NICE SLAP!", "COMBO!", "BUNNY BONK!", "PERFECT!"][rng.randi_range(0, 3)]
+		_show_hit_fx()
 		_remove_rabbit()
 		spawn_timer = 0.35
 	else:
 		combo = 0
 		message_label.text = "MISSED! WAIT FOR THE BUNNY"
 	_update_hud()
+
+func _rabbit_lifetime() -> float:
+	# Gentle, capped difficulty ramp; never becomes a near-impossible twitch test.
+	return maxf(MIN_RABBIT_LIFETIME, BASE_RABBIT_LIFETIME - float(score) / 4200.0)
+
+func _show_hit_fx() -> void:
+	if not hit_fx_label:
+		return
+	hit_fx_label.text = ["SLAP!", "POW!", "BONK!", "WHAM!"][rng.randi_range(0, 3)]
+	hit_fx_label.scale = Vector2(0.45, 0.45)
+	hit_fx_label.rotation = deg_to_rad(rng.randf_range(-9.0, 9.0))
+	hit_fx_label.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(hit_fx_label, "scale", Vector2(1.15, 1.15), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(hit_fx_label, "rotation", 0.0, 0.22)
+	tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.48).set_delay(0.24)
+
+func _load_best() -> void:
+	var config := ConfigFile.new()
+	if config.load(SAVE_PATH) == OK:
+		best = int(config.get_value("progress", "best_score", 0))
+
+func _save_best() -> void:
+	var config := ConfigFile.new()
+	config.set_value("progress", "best_score", best)
+	config.save(SAVE_PATH)
 
 func _escape_rabbit() -> void:
 	combo = 0
@@ -298,7 +345,7 @@ func _start_round() -> void:
 func _end_round() -> void:
 	playing = false
 	_remove_rabbit()
-	_show_overlay("ROUND OVER!", "Score: %d\nBest this round: %d\nTap play to try again." % [score, best])
+	_show_overlay("ROUND OVER!", "Score: %d\nPersonal best: %d\nTap play to try again." % [score, best])
 	play_button.text = "↻  PLAY AGAIN"
 
 func _show_overlay(title_text: String, body_text: String) -> void:
