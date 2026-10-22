@@ -131,10 +131,27 @@ func _build_world() -> void:
 	world_root = Node3D.new()
 	world_root.name = "VoxelGarden"
 	add_child(world_root)
-	_add_light(Vector3(-4, 9, 5), 2.0, Color(1.0, 0.84, 0.67))
-	_add_light(Vector3(5, 6, -3), 1.1, Color(0.35, 0.83, 1.0))
+	_add_light(Vector3(-4, 9, 5), 2.0, Color(1.0, 0.91, 0.72))
+	_add_light(Vector3(5, 6, -3), 1.1, Color(0.35, 0.93, 0.67))
+	# Reference-folder direction: bright mint-green jungle sky, stepped grass silhouettes,
+	# chunky canopy framing and high-contrast lime foliage rather than a generic blue sky.
+	_add_box(world_root, Vector3(0, 1.25, -9.1), Vector3(22, 3.4, 0.55), Color(0.13, 0.73, 0.43))
+	_add_box(world_root, Vector3(-7.1, 2.5, -8.8), Vector3(6.0, 2.3, 0.65), Color(0.04, 0.43, 0.30))
+	_add_box(world_root, Vector3(7.2, 2.65, -8.8), Vector3(6.0, 2.6, 0.65), Color(0.04, 0.46, 0.30))
+	_add_box(world_root, Vector3(-8.2, 3.5, -8.4), Vector3(4.0, 1.0, 0.7), Color(0.02, 0.35, 0.25))
+	_add_box(world_root, Vector3(8.2, 3.65, -8.4), Vector3(4.0, 1.0, 0.7), Color(0.02, 0.35, 0.25))
+	# Bright stepped grass shelves echo the chunky illustrated ground in the art board.
+	_add_box(world_root, Vector3(0, -0.08, -6.9), Vector3(21, 0.8, 1.0), Color(0.28, 0.82, 0.30))
+	_add_box(world_root, Vector3(-7.2, 0.15, -6.35), Vector3(6.0, 0.6, 0.9), Color(0.37, 0.91, 0.31))
+	_add_box(world_root, Vector3(7.0, 0.12, -6.25), Vector3(6.4, 0.55, 0.9), Color(0.34, 0.88, 0.28))
 	_add_box(world_root, Vector3(0, -0.42, -1.5), Vector3(20, 0.8, 19), Color(0.30, 0.62, 0.25))
 	_add_box(world_root, Vector3(0, -0.005, 2.0), Vector3(4.2, 0.06, 15), Color(0.72, 0.62, 0.40))
+	# Pixel highlights on the distant grass add depth without obscuring rabbit silhouettes.
+	for i in range(28):
+		var pixel_x := -9.0 + float(i) * 0.66
+		var pixel_y := 0.25 + float((i * 7) % 5) * 0.11
+		var pixel_color := Color(0.65, 1.0, 0.31) if i % 3 == 0 else Color(0.20, 0.70, 0.24)
+		_add_box(world_root, Vector3(pixel_x, pixel_y, -6.25), Vector3(0.18 + float(i % 3) * 0.07, 0.08, 0.08), pixel_color)
 	# Layered voxel trees frame the play area without hiding the target.
 	for x in [-8.0, -6.1, 6.1, 8.0]:
 		for z in [-5.0, -1.0, 3.0]:
@@ -192,14 +209,14 @@ func _build_camera() -> void:
 	environment.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
 	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color(0.05, 0.18, 0.40)
-	sky_mat.sky_horizon_color = Color(0.30, 0.72, 0.91)
-	sky_mat.ground_bottom_color = Color(0.10, 0.19, 0.10)
-	sky_mat.ground_horizon_color = Color(0.35, 0.53, 0.28)
+	sky_mat.sky_top_color = Color(0.06, 0.55, 0.34)
+	sky_mat.sky_horizon_color = Color(0.38, 0.94, 0.68)
+	sky_mat.ground_bottom_color = Color(0.04, 0.29, 0.17)
+	sky_mat.ground_horizon_color = Color(0.25, 0.72, 0.34)
 	sky.sky_material = sky_mat
 	environment.sky = sky
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.62, 0.76, 0.94)
+	environment.ambient_light_color = Color(0.72, 1.0, 0.78)
 	environment.ambient_light_energy = 0.65
 	env.environment = environment
 	add_child(env)
