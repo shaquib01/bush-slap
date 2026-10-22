@@ -428,6 +428,7 @@ func _try_slap(screen_pos: Vector2) -> void:
 	else:
 		combo = 0
 		message_label.text = "MISSED! WAIT FOR THE BUNNY"
+		_show_miss_fx()
 	_update_hud()
 
 func _rabbit_lifetime() -> float:
@@ -456,6 +457,24 @@ func _show_hit_fx() -> void:
 	tween.tween_property(hit_fx_label, "scale", Vector2(1.15, 1.15), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(hit_fx_label, "rotation", 0.0, 0.22)
 	tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.48).set_delay(0.24)
+
+func _show_miss_fx() -> void:
+	# Make a missed swipe legible without punishing the player with extra clutter.
+	if not hit_fx_label:
+		return
+	hit_fx_label.text = "MISS!"
+	hit_fx_label.scale = Vector2(0.55, 0.55)
+	hit_fx_label.rotation = 0.0
+	hit_fx_label.modulate = Color(1.0, 0.34, 0.30, 1.0)
+	hit_fx_label.add_theme_color_override("font_color", Color(1.0, 0.42, 0.34))
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(hit_fx_label, "scale", Vector2(0.85, 0.85), 0.09).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(hit_fx_label, "rotation", deg_to_rad(-4.0), 0.06)
+	tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.30).set_delay(0.08)
+	tween.chain().tween_callback(func():
+		hit_fx_label.add_theme_color_override("font_color", Color(1.0, 0.83, 0.18))
+	)
 
 func _spawn_score_popup(origin: Vector3, points: int) -> void:
 	# Floating score text reinforces the reward without adding permanent HUD clutter.
