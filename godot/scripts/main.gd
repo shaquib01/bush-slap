@@ -40,6 +40,7 @@ var overlay_body: Label
 var play_button: Button
 var rng := RandomNumberGenerator.new()
 var bush_positions: Array[Vector3] = []
+var last_bush_index := -1
 var fireflies: Array[MeshInstance3D] = []
 var firefly_origins: Array[Vector3] = []
 var cloud_nodes: Array[Node3D] = []
@@ -476,7 +477,12 @@ func _add_box(parent: Node3D, pos: Vector3, size: Vector3, tint: Color) -> MeshI
 	return mesh_instance
 
 func _spawn_rabbit() -> void:
-	var spot: Vector3 = bush_positions[rng.randi_range(0, bush_positions.size() - 1)]
+	# Avoid back-to-back spawns from the same bush so players scan the whole garden.
+	var next_bush_index := rng.randi_range(0, bush_positions.size() - 1)
+	if bush_positions.size() > 1 and next_bush_index == last_bush_index:
+		next_bush_index = (next_bush_index + rng.randi_range(1, bush_positions.size() - 1)) % bush_positions.size()
+	last_bush_index = next_bush_index
+	var spot: Vector3 = bush_positions[next_bush_index]
 	rabbit = Area3D.new()
 	rabbit.name = "RabbitTarget"
 	rabbit_home_position = spot + Vector3(0, 0.1, -0.1)
