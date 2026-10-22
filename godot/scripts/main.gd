@@ -39,6 +39,8 @@ var overlay_body: Label
 var play_button: Button
 var rng := RandomNumberGenerator.new()
 var bush_positions: Array[Vector3] = []
+# Reuse identical materials across voxel blocks to reduce resource count and draw overhead.
+var material_cache: Dictionary = {}
 
 func _ready() -> void:
 	rng.randomize()
@@ -346,9 +348,14 @@ func _add_box(parent: Node3D, pos: Vector3, size: Vector3, tint: Color) -> MeshI
 	var mesh := BoxMesh.new()
 	mesh.size = size
 	mesh_instance.mesh = mesh
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = tint
-	mat.roughness = 0.88
+	var mat: StandardMaterial3D
+	if material_cache.has(tint):
+		mat = material_cache[tint] as StandardMaterial3D
+	else:
+		mat = StandardMaterial3D.new()
+		mat.albedo_color = tint
+		mat.roughness = 0.88
+		material_cache[tint] = mat
 	mesh_instance.material_override = mat
 	mesh_instance.position = pos
 	parent.add_child(mesh_instance)
