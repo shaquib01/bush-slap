@@ -634,14 +634,20 @@ func _spawn_score_popup(origin: Vector3, points: int) -> void:
 	tween.chain().tween_callback(popup.queue_free)
 
 func _spawn_voxel_burst(origin: Vector3) -> void:
-	# Comic-book hit burst: a denser ring of colored voxel shards with varied spin and travel.
+	# Comic-book impact: layered voxel shards fly in a radial burst, with a few
+	# longer rectangular speed-lines to make each clean hit feel punchier.
 	var palette := [Color(1.0, 0.80, 0.16), Color(1.0, 0.28, 0.52), Color(0.24, 0.91, 1.0), Color(0.91, 1.0, 0.63), Color(1.0, 0.98, 0.90)]
-	for i in range(18):
+	for i in range(26):
 		var piece_size := rng.randf_range(0.075, 0.20)
-		var piece := _add_box(world_root, origin, Vector3.ONE * piece_size, palette[i % palette.size()])
+		var piece_shape := Vector3.ONE * piece_size
+		if i % 4 == 0:
+			piece_shape = Vector3(piece_size * 2.2, piece_size * 0.55, piece_size * 0.7)
+		var piece := _add_box(world_root, origin, piece_shape, palette[i % palette.size()])
 		piece.rotation_degrees = Vector3(rng.randf_range(-35.0, 35.0), rng.randf_range(-35.0, 35.0), rng.randf_range(-35.0, 35.0))
-		var destination := origin + Vector3(rng.randf_range(-1.45, 1.45), rng.randf_range(0.25, 1.75), rng.randf_range(-0.9, 0.8))
-		var duration := rng.randf_range(0.24, 0.44)
+		var angle := TAU * float(i) / 26.0 + rng.randf_range(-0.22, 0.22)
+		var travel := rng.randf_range(0.75, 1.65)
+		var destination := origin + Vector3(cos(angle) * travel, rng.randf_range(0.25, 1.65), sin(angle) * travel * 0.65)
+		var duration := rng.randf_range(0.24, 0.46)
 		var tween := create_tween()
 		tween.set_parallel(true)
 		tween.tween_property(piece, "position", destination, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
