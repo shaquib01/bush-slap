@@ -32,6 +32,7 @@ var hud_top: HBoxContainer
 var overlay_panel: VBoxContainer
 var message_label: Label
 var hit_fx_label: Label
+var hit_fx_tween: Tween
 var overlay: ColorRect
 var overlay_title: Label
 var overlay_body: Label
@@ -448,31 +449,35 @@ func _play_hit_feedback() -> void:
 func _show_hit_fx() -> void:
 	if not hit_fx_label:
 		return
+	if hit_fx_tween and hit_fx_tween.is_valid():
+		hit_fx_tween.kill()
 	hit_fx_label.text = ["SLAP!", "POW!", "BONK!", "WHAM!"][rng.randi_range(0, 3)]
 	hit_fx_label.scale = Vector2(0.45, 0.45)
 	hit_fx_label.rotation = deg_to_rad(rng.randf_range(-9.0, 9.0))
 	hit_fx_label.modulate = Color(1.0, 1.0, 1.0, 1.0)
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(hit_fx_label, "scale", Vector2(1.15, 1.15), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(hit_fx_label, "rotation", 0.0, 0.22)
-	tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.48).set_delay(0.24)
+	hit_fx_tween = create_tween()
+	hit_fx_tween.set_parallel(true)
+	hit_fx_tween.tween_property(hit_fx_label, "scale", Vector2(1.15, 1.15), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	hit_fx_tween.tween_property(hit_fx_label, "rotation", 0.0, 0.22)
+	hit_fx_tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.48).set_delay(0.24)
 
 func _show_miss_fx() -> void:
 	# Make a missed swipe legible without punishing the player with extra clutter.
 	if not hit_fx_label:
 		return
+	if hit_fx_tween and hit_fx_tween.is_valid():
+		hit_fx_tween.kill()
 	hit_fx_label.text = "MISS!"
 	hit_fx_label.scale = Vector2(0.55, 0.55)
 	hit_fx_label.rotation = 0.0
 	hit_fx_label.modulate = Color(1.0, 0.34, 0.30, 1.0)
 	hit_fx_label.add_theme_color_override("font_color", Color(1.0, 0.42, 0.34))
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(hit_fx_label, "scale", Vector2(0.85, 0.85), 0.09).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(hit_fx_label, "rotation", deg_to_rad(-4.0), 0.06)
-	tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.30).set_delay(0.08)
-	tween.chain().tween_callback(func():
+	hit_fx_tween = create_tween()
+	hit_fx_tween.set_parallel(true)
+	hit_fx_tween.tween_property(hit_fx_label, "scale", Vector2(0.85, 0.85), 0.09).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	hit_fx_tween.tween_property(hit_fx_label, "rotation", deg_to_rad(-4.0), 0.06)
+	hit_fx_tween.tween_property(hit_fx_label, "modulate:a", 0.0, 0.30).set_delay(0.08)
+	hit_fx_tween.chain().tween_callback(func():
 		hit_fx_label.add_theme_color_override("font_color", Color(1.0, 0.83, 0.18))
 	)
 
