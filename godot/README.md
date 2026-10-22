@@ -12,7 +12,7 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 ## Prototype features
 
 - Procedurally generated voxel-style garden, trees and bushes.
-- Blocky white rabbit with upright pink ears and visible feet.
+- Blocky white rabbit with upright pink ears, visible feet, paw pads, eye highlights, a pixel tail and a small forelock.
 - Mouse and touch input with a raycast hit target.
 - Score, combo, timer and round restart.
 - Camera-attached blocky first-person hand with a three-beat slap swing animation.
@@ -25,7 +25,7 @@ This is a **parallel prototype** of Bush Slap. The existing production website i
 
 ## Current limitations
 
-This is an early prototype foundation, not a verified release. The art is built from procedural cubes and needs the final approved concept-art assets, further expressive rabbit/ear animation, audio, accessibility review, and performance tuning. Personal best is saved locally; online accounts, cloud sync, and global leaderboards are not implemented. The scene has not yet been run through the Godot editor or tested on real devices, so syntax/runtime and input behavior still need validation.
+This is an early prototype foundation, not a verified release. The art is built from procedural cubes and needs the final approved concept-art assets, further expressive rabbit/ear animation, audio, accessibility review, and performance tuning. Recent face, tail and paw details are still placeholder geometry rather than final character art. Personal best is saved locally; online accounts, cloud sync, and global leaderboards are not implemented. The scene has not yet been run through the Godot editor or tested on real devices, so syntax/runtime and input behavior still need validation.
 
 ## Automated project check
 
