@@ -70,7 +70,18 @@ ctx.restore()}
 function drawHand(ctx,px,py,scale=1){ctx.save();ctx.translate(px,py);ctx.rotate(-.48-Math.sin(handSwing*Math.PI)*.72);ctx.scale(scale,scale);ctx.fillStyle='#0b1630';ctx.strokeStyle='#ff3c91';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-24,110);ctx.lineTo(-17,22);ctx.lineTo(-27,-13);ctx.quadraticCurveTo(-29,-28,-17,-28);ctx.quadraticCurveTo(-7,-29,-4,-13);ctx.lineTo(1,7);ctx.lineTo(0,-65);ctx.quadraticCurveTo(0,-83,12,-83);ctx.quadraticCurveTo(25,-83,25,-65);ctx.lineTo(29,3);ctx.lineTo(37,-47);ctx.quadraticCurveTo(40,-62,52,-58);ctx.quadraticCurveTo(64,-55,60,-39);ctx.lineTo(53,15);ctx.lineTo(69,-19);ctx.quadraticCurveTo(78,-30,88,-20);ctx.quadraticCurveTo(96,-12,87,5);ctx.lineTo(65,60);ctx.lineTo(58,113);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#ff245f';ctx.fillRect(-24,82,87,16);ctx.fillStyle='#243c66';ctx.fillRect(-19,45,78,15);ctx.restore()}
 function drawTrack(ctx,w,h){foliage(ctx,w,h);const horizon=h*.27,center=w*.5,roadTop=w*.075,roadBottom=w*.43;poly(ctx,[[center-roadTop,horizon],[center+roadTop,horizon],[center+roadBottom,h],[center-roadBottom,h]],'#26394b');poly(ctx,[[center-roadTop,horizon],[center-roadTop+5,horizon],[center-roadBottom+18,h],[center-roadBottom,h]],'#e9d6a0');poly(ctx,[[center+roadTop-5,horizon],[center+roadTop,horizon],[center+roadBottom,h],[center+roadBottom-18,h]],'#e9d6a0');poly(ctx,[[center-roadTop*.72,horizon],[center+roadTop*.72,horizon],[center+roadBottom*.72,h],[center-roadBottom*.72,h]],'#344b5c');ctx.save();ctx.strokeStyle='#e7f5ee';ctx.lineWidth=4;ctx.setLineDash([18,24]);ctx.lineDashOffset=-(elapsed*95)%42;for(let lane=-1;lane<=1;lane+=2){ctx.beginPath();ctx.moveTo(center+lane*roadTop*.34,horizon);ctx.lineTo(center+lane*roadBottom*.34,h);ctx.stroke()}ctx.restore();for(let i=0;i<20;i++){let z=((i/20+elapsed*.42)%1),y=horizon+(h-horizon)*z*z,half=roadTop+(roadBottom-roadTop)*z*z;ctx.fillStyle=i%2?'#7fbd61':'#5d9f51';ctx.fillRect(center-half-18,y,18+z*20,3+z*5);ctx.fillRect(center+half,y,18+z*20,3+z*5)}for(let side of [-1,1])for(let i=0;i<7;i++){let z=((i/7+elapsed*.16)%1),y=horizon+(h-horizon)*z*z,edge=roadTop+(roadBottom-roadTop)*z*z,xp=center+side*(edge+36+z*120),scale=.15+z*.9;drawBush(ctx,{x:xp,y:y+12*scale,s:scale*.7})}ctx.fillStyle='#eaf6ff';ctx.globalAlpha=.24;for(let i=0;i<22;i++){let z=((i/22+elapsed*.7)%1),y=horizon+(h-horizon)*z*z,half=roadTop+(roadBottom-roadTop)*z*z;ctx.fillRect(center+(i%2?1:-1)*(half*.8),y,2+z*3,7+z*18)}ctx.globalAlpha=1}
 function drawArms(ctx){ctx.save();const swing=Math.sin(handSwing*Math.PI);ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowColor='#07111d';ctx.shadowBlur=14;ctx.lineWidth=65;ctx.strokeStyle='#101b30';ctx.beginPath();ctx.moveTo(W+20,H+30);ctx.lineTo(W*.79,H*.88-swing*55);ctx.stroke();ctx.lineWidth=49;ctx.strokeStyle='#263f65';ctx.beginPath();ctx.moveTo(W+20,H+30);ctx.lineTo(W*.79,H*.88-swing*55);ctx.stroke();ctx.lineWidth=35;ctx.strokeStyle='#111827';ctx.beginPath();ctx.moveTo(W*.79,H*.88-swing*55);ctx.lineTo(W*.76,H*.79-swing*80);ctx.stroke();ctx.fillStyle='#18243a';ctx.beginPath();ctx.ellipse(W*.76,H*.78-swing*80,32,27,-.25,0,Math.PI*2);ctx.fill();ctx.fillStyle='#3c5271';ctx.beginPath();ctx.ellipse(W*.75,H*.77-swing*80,23,17,-.25,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff3c91';ctx.fillRect(W*.73,H*.79-swing*80,35,6);ctx.restore()}
-function projectRabbit(lane,depth){const z=Math.max(.08,Math.min(1,depth)),center=W*.5;return{x:center+lane*W*(.28-.13*z),y:H*(.77-.14*z),s:1.1-.35*z}}
+function projectRabbit(lane,depth){
+ if(renderer3d&&camera3d&&rabbit3d){
+  rabbit3d.position.set(lane*2.35,.02+Math.sin(elapsed*11)*.05,-15+depth*12);
+  rabbit3d.updateMatrixWorld(true);camera3d.updateMatrixWorld(true);
+  const v=new THREE.Vector3(0,1.05,0).applyMatrix4(rabbit3d.matrixWorld).project(camera3d);
+  const distance=Math.max(1,camera3d.position.distanceTo(rabbit3d.position));
+  const scale=(H/(2*Math.tan(THREE.MathUtils.degToRad(camera3d.fov/2))*distance))*.64;
+  return{x:(v.x*.5+.5)*W,y:(-v.y*.5+.5)*H,s:scale};
+ }
+ const z=Math.max(.08,Math.min(1,depth)),center=W*.5;
+ return{x:center+lane*W*(.28-.13*z),y:H*(.77-.14*z),s:1.1-.35*z}
+}
 
 const c3=document.querySelector('#game3d');let renderer3d=null,scene3d=null,camera3d=null,world3d=null,rabbit3d=null,arms3d=null,road3d=null,clock3d=0;
 function mat(color,roughness=.86){return new THREE.MeshStandardMaterial({color,roughness})}
@@ -113,7 +124,7 @@ function resize3d(){if(!renderer3d||!camera3d)return;const r=c.getBoundingClient
 function syncRabbit3d(dt=0){
  if(!rabbit3d||!scene3d)return;
  if(!rabbit){rabbit3d.visible=false;return}
- rabbit3d.visible=true;const z=4.4-rabbit.depth*10.5; rabbit3d.position.set(rabbit.lane*2.35,.02+Math.sin(elapsed*11)*.05,z);
+ rabbit3d.visible=true;const z=-15+rabbit.depth*12; rabbit3d.position.set(rabbit.lane*2.35,.02+Math.sin(elapsed*11)*.05,z);
  const popIn=Math.min(1,.18+(rabbit.maxLife-rabbit.life)/140);rabbit3d.scale.setScalar(.64*popIn);
  rabbit3d.rotation.y=Math.sin(elapsed*3)*.08;
  if(rabbit.bonus){rabbit3d.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){o.material.emissive=new THREE.Color('#6a4c00');o.material.emissiveIntensity=.45}})}
