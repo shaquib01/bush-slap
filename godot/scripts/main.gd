@@ -28,6 +28,7 @@ var rabbit_phase := 0.0
 var hud_score: Label
 var hud_time: Label
 var hud_combo: Label
+var hud_progress: ProgressBar
 var hud_top: HBoxContainer
 var overlay_panel: VBoxContainer
 var message_label: Label
@@ -182,6 +183,18 @@ func _build_hud() -> void:
 	hud_top.add_child(hud_combo)
 	hud_top.add_spacer(false)
 	hud_top.add_child(hud_time)
+	hud_progress = ProgressBar.new()
+	hud_progress.name = "RoundProgress"
+	hud_progress.min_value = 0.0
+	hud_progress.max_value = 100.0
+	hud_progress.value = 100.0
+	hud_progress.show_percentage = false
+	hud_progress.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	hud_progress.offset_left = 18.0
+	hud_progress.offset_top = -22.0
+	hud_progress.offset_right = -18.0
+	hud_progress.offset_bottom = -10.0
+	layer.add_child(hud_progress)
 	message_label = _hud_label("TAP THE RABBIT!", 20)
 	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	message_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
@@ -246,6 +259,11 @@ func _apply_responsive_hud() -> void:
 		hud_time.add_theme_font_size_override("font_size", 16 if compact else 22)
 	if hud_combo:
 		hud_combo.add_theme_font_size_override("font_size", 15 if compact else 22)
+	if hud_progress:
+		hud_progress.offset_left = 10.0 if compact else 18.0
+		hud_progress.offset_right = -10.0 if compact else -18.0
+		hud_progress.offset_top = -18.0 if compact else -22.0
+		hud_progress.offset_bottom = -8.0 if compact else -10.0
 	if message_label:
 		message_label.add_theme_font_size_override("font_size", 15 if compact else 20)
 		message_label.offset_top = 52.0 if compact else 78.0
@@ -572,3 +590,6 @@ func _update_hud() -> void:
 		hud_score.text = "SCORE  %04d" % score
 		hud_time.text = "TIME  %02d" % maxi(0, int(ceil(round_time)))
 		hud_combo.text = "COMBO  x%d" % combo
+	if hud_progress:
+		hud_progress.value = clampf(round_time / ROUND_SECONDS * 100.0, 0.0, 100.0)
+		hud_progress.modulate = Color(1.0, 0.48, 0.38) if round_time <= 10.0 else Color.WHITE
