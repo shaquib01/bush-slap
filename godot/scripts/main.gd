@@ -20,6 +20,8 @@ var spawn_timer := 0.0
 var rabbit_age := 0.0
 var rabbit_home_position := Vector3.ZERO
 var round_time := ROUND_SECONDS
+var game_mode := "TIMED"
+var mode_button: Button
 var score := 0
 var combo := 0
 var lives := 3
@@ -84,7 +86,8 @@ func _process(delta: float) -> void:
 		slap_hand.position = hand_rest_position + Vector3(0.0, sin(ambient_time * 1.35) * 0.018, 0.0)
 		slap_hand.rotation_degrees = Vector3(-8.0 + sin(ambient_time * 1.1) * 0.7, -16.0, -12.0 + sin(ambient_time * 0.9) * 1.1)
 	if playing and not paused:
-		round_time -= delta
+		if game_mode == "TIMED":
+			round_time -= delta
 		spawn_timer -= delta
 		if rabbit and is_instance_valid(rabbit):
 			rabbit_age += delta
@@ -106,7 +109,7 @@ func _process(delta: float) -> void:
 				_escape_rabbit()
 		if spawn_timer <= 0.0 and (not rabbit or not is_instance_valid(rabbit)):
 			_spawn_rabbit()
-		if round_time <= 0.0:
+		if game_mode == "TIMED" and round_time <= 0.0:
 			_end_round()
 		_update_hud()
 
@@ -334,6 +337,12 @@ func _build_hud() -> void:
 	play_button.custom_minimum_size = Vector2(220, 58)
 	play_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	play_button.add_theme_font_size_override("font_size", 24)
+	mode_button = Button.new()
+	mode_button.text = "MODE: TIMED · 60 SECONDS"
+	mode_button.custom_minimum_size = Vector2(240, 42)
+	mode_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	mode_button.pressed.connect(_cycle_game_mode)
+	overlay_panel.add_child(mode_button)
 	play_button.pressed.connect(_on_overlay_play_pressed)
 	overlay_panel.add_child(play_button)
 
@@ -380,6 +389,9 @@ func _apply_responsive_hud() -> void:
 	if play_button:
 		play_button.custom_minimum_size = Vector2(180, 50) if compact else Vector2(220, 58)
 		play_button.add_theme_font_size_override("font_size", 20 if compact else 24)
+	if mode_button:
+		mode_button.custom_minimum_size = Vector2(210, 38) if compact else Vector2(240, 42)
+		mode_button.add_theme_font_size_override("font_size", 15 if compact else 17)
 
 func _hud_label(text_value: String, font_size: int) -> Label:
 	var label := Label.new()
@@ -756,6 +768,19 @@ func _remove_rabbit() -> void:
 	rabbit = null
 	rabbit_visual = null
 
+func _cycle_game_mode() -> void:
+	if playing:
+		return
+	game_mode = "ENDLESS" if game_mode == "TIMED" else "TIMED"
+	if mode_button:
+		mode_button.text = "MODE: ENDLESS · NO TIMER" if game_mode == "ENDLESS" else "MODE: TIMED · 60 SECONDS"
+	if hud_progress:
+		hud_progress.visible = game_mode == "TIMED"
+	if hud_time:
+		hud_time.text = "TIME  60" if game_mode == "TIMED" else "TIME  ∞"
+	if overlay_body and not playing:
+		overlay_body.text = "Tap or click the blocky rabbit when it pops out. Build a combo and beat your best!\n\n" + ("Endless mode: survive as long as you can. No countdown." if game_mode == "ENDLESS" else "Timed mode: score as much as you can in 60 seconds.")
+
 func _on_overlay_play_pressed() -> void:
 	if playing and paused:
 		_resume_round()
@@ -798,6 +823,8 @@ func _start_round() -> void:
 	spawn_timer = 0.25
 	_remove_rabbit()
 	overlay.visible = false
+	if hud_progress:
+		hud_progress.visible = game_mode == "TIMED"
 	message_label.text = "TAP THE RABBIT!"
 	_update_hud()
 
@@ -816,7 +843,7 @@ func _end_round() -> void:
 	for i in range(round_history.size()):
 		var history_score: int = round_history[round_history.size() - 1 - i]
 		history_text += "\n%d. %d points" % [i + 1, history_score]
-	_show_overlay("ROUND OVER!", "%s\nScore: %d\nPersonal best: %d\n\nRECENT ROUNDS%s\n\nTap play to try again." % [result_reason, score, best, history_text])
+	_show_overlay("ROUND OVER!", "%s · %s\nScore: %d\nPersonal best: %d\n\nRECENT ROUNDS%s\n\nTap play to try again." % [game_mode, result_reason, score, best, history_text])
 	play_button.text = "↻  PLAY AGAIN"
 
 func _show_overlay(title_text: String, body_text: String) -> void:
@@ -830,8 +857,8 @@ func _update_hud() -> void:
 		pause_button.visible = playing
 	if hud_score:
 		hud_score.text = "SCORE  %04d" % score
-		hud_time.text = "TIME  %02d" % maxi(0, int(ceil(round_time)))
+		hud_time.text = ("TIME  %02d" % maxi(0, int(ceil(round_time)))) if game_mode == "TIMED" else "TIME  ∞"
 		hud_combo.text = "COMBO  x%d" % combo
 	if hud_progress:
-		hud_progress.value = clampf(round_time / ROUND_SECONDS * 100.0, 0.0, 100.0)
+		hud_progress.value = clampf(round_time / ROUND_SECONDS * 100.0, 0.0, 100.0) if game_mode == "TIMED" else 100.0
 		hud_progress.modulate = Color(1.0, 0.48, 0.38) if round_time <= 10.0 else Color.WHITE
