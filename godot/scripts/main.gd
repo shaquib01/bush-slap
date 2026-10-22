@@ -127,6 +127,10 @@ func _build_world() -> void:
 	for x in [-8.0, -6.1, 6.1, 8.0]:
 		for z in [-5.0, -1.0, 3.0]:
 			_make_tree(Vector3(x, 0, z), 0.8 if absf(x) > 7.0 else 1.0)
+	# Layered floating voxel clouds frame the sky and add depth to the comic-book garden.
+	_make_cloud(Vector3(-5.8, 6.2, -5.8), 1.0)
+	_make_cloud(Vector3(1.8, 7.0, -7.0), 0.82)
+	_make_cloud(Vector3(7.0, 5.7, -4.8), 0.72)
 	# Six bushes define easy-to-read rabbit spawn zones.
 	bush_positions = [
 		Vector3(-4.5, 0.0, -2.0), Vector3(-2.0, 0.0, -3.7),
@@ -372,6 +376,23 @@ func _make_tree(origin: Vector3, scale_factor: float) -> void:
 		var height := rng.randf_range(1.4, 3.0) * scale_factor
 		var size := rng.randf_range(0.45, 0.9) * scale_factor
 		_add_box(world_root, origin + Vector3(cos(angle) * radius, height, sin(angle) * radius), Vector3.ONE * size, greens[i % greens.size()])
+
+func _make_cloud(origin: Vector3, scale_factor: float) -> void:
+	# Stepped cubes give the sky a deliberately handmade voxel silhouette.
+	var cloud_blocks: Array[Vector3] = [
+		Vector3(-0.72, 0.0, 0.0), Vector3(-0.25, 0.20, 0.0),
+		Vector3(0.22, 0.08, 0.0), Vector3(0.68, -0.02, 0.0),
+		Vector3(-0.08, 0.30, 0.0)
+	]
+	for i in range(cloud_blocks.size()):
+		var block_size := Vector3(0.82, 0.34, 0.42) * scale_factor
+		if i == 1 or i == 4:
+			block_size.y *= 1.18
+		var block := _add_box(world_root, origin + cloud_blocks[i] * scale_factor, block_size, Color(0.78, 0.91, 1.0))
+		var cloud_material := (block.material_override as StandardMaterial3D).duplicate() as StandardMaterial3D
+		cloud_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		cloud_material.albedo_color = Color(0.78, 0.91, 1.0, 0.76)
+		block.material_override = cloud_material
 
 func _make_bush(origin: Vector3) -> void:
 	var greens := [Color(0.07, 0.32, 0.13), Color(0.12, 0.48, 0.17), Color(0.22, 0.62, 0.20), Color(0.37, 0.74, 0.24)]
