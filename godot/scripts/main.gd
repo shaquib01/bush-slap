@@ -15,6 +15,7 @@ var hand_swinging := false
 var world_root: Node3D
 var rabbit: Area3D
 var rabbit_visual: Node3D
+var rabbit_ears: Array[Node3D] = []
 var spawn_timer := 0.0
 var rabbit_age := 0.0
 var round_time := ROUND_SECONDS
@@ -57,6 +58,9 @@ func _process(delta: float) -> void:
 				# Small squash-and-stretch gives the voxel bunny a readable hop rhythm.
 				var hop := absf(sin(rabbit_phase))
 				rabbit_visual.scale = Vector3(1.0 + hop * 0.035, 1.0 - hop * 0.045, 1.0 + hop * 0.035)
+				for ear_index in range(rabbit_ears.size()):
+					var ear := rabbit_ears[ear_index]
+					ear.rotation_degrees.z = sin(rabbit_phase * 0.8 + float(ear_index) * PI) * 7.0
 			if rabbit_age >= _rabbit_lifetime():
 				_escape_rabbit()
 		if spawn_timer <= 0.0 and (not rabbit or not is_instance_valid(rabbit)):
@@ -144,15 +148,15 @@ func _build_hud() -> void:
 	add_child(layer)
 	var top := HBoxContainer.new()
 	top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	top.offset_left = 24
-	top.offset_top = 18
-	top.offset_right = -24
-	top.offset_bottom = 74
-	top.add_theme_constant_override("separation", 14)
+	top.offset_left = 18
+	top.offset_top = 14
+	top.offset_right = -18
+	top.offset_bottom = 66
+	top.add_theme_constant_override("separation", 8)
 	layer.add_child(top)
-	hud_score = _hud_label("SCORE  0000", 28)
-	hud_time = _hud_label("TIME  60", 24)
-	hud_combo = _hud_label("COMBO  x0", 24)
+	hud_score = _hud_label("SCORE  0000", 24)
+	hud_time = _hud_label("TIME  60", 22)
+	hud_combo = _hud_label("COMBO  x0", 22)
 	top.add_child(hud_score)
 	top.add_spacer(false)
 	top.add_child(hud_combo)
@@ -311,14 +315,20 @@ func _spawn_rabbit() -> void:
 	rabbit_visual = Node3D.new()
 	rabbit.add_child(rabbit_visual)
 	# Chunky white body, square head, pink inner ears, visible feet and cheeks.
+	rabbit_ears.clear()
 	_add_box(rabbit_visual, Vector3(0, 0.75, 0), Vector3(0.85, 0.95, 0.62), Color(0.91, 0.94, 1.0))
 	_add_box(rabbit_visual, Vector3(0, 1.45, -0.03), Vector3(0.88, 0.78, 0.70), Color(1.0, 0.98, 0.94))
 	_add_box(rabbit_visual, Vector3(-0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
 	_add_box(rabbit_visual, Vector3(0.25, 1.52, -0.39), Vector3(0.12, 0.12, 0.05), Color(0.05, 0.07, 0.11))
 	_add_box(rabbit_visual, Vector3(0, 1.34, -0.43), Vector3(0.18, 0.12, 0.06), Color(0.94, 0.43, 0.61))
 	for side in [-1.0, 1.0]:
-		_add_box(rabbit_visual, Vector3(side * 0.23, 2.08, 0.02), Vector3(0.24, 0.88, 0.22), Color(0.96, 0.95, 0.91))
-		_add_box(rabbit_visual, Vector3(side * 0.23, 2.08, -0.105), Vector3(0.13, 0.64, 0.035), Color(0.95, 0.42, 0.63))
+		var ear_pivot := Node3D.new()
+		ear_pivot.position = Vector3(side * 0.23, 1.82, 0.02)
+		ear_pivot.name = "LeftEarPivot" if side < 0.0 else "RightEarPivot"
+		rabbit_visual.add_child(ear_pivot)
+		rabbit_ears.append(ear_pivot)
+		_add_box(ear_pivot, Vector3(0, 0.28, 0), Vector3(0.24, 0.70, 0.22), Color(0.96, 0.95, 0.91))
+		_add_box(ear_pivot, Vector3(0, 0.28, -0.115), Vector3(0.13, 0.50, 0.035), Color(0.95, 0.42, 0.63))
 		_add_box(rabbit_visual, Vector3(side * 0.27, 0.15, -0.06), Vector3(0.34, 0.18, 0.48), Color(0.98, 0.94, 0.91))
 		_add_box(rabbit_visual, Vector3(side * 0.49, 1.32, -0.20), Vector3(0.15, 0.24, 0.08), Color(1.0, 0.65, 0.72))
 	add_child(rabbit)
