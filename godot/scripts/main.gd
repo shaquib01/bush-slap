@@ -24,6 +24,8 @@ var score := 0
 var combo := 0
 var best := 0
 var playing := false
+var paused := false
+var pause_button: Button
 var rabbit_phase := 0.0
 var hud_score: Label
 var hud_time: Label
@@ -77,7 +79,7 @@ func _process(delta: float) -> void:
 	if slap_hand and is_instance_valid(slap_hand) and not hand_swinging:
 		slap_hand.position = hand_rest_position + Vector3(0.0, sin(ambient_time * 1.35) * 0.018, 0.0)
 		slap_hand.rotation_degrees = Vector3(-8.0 + sin(ambient_time * 1.1) * 0.7, -16.0, -12.0 + sin(ambient_time * 0.9) * 1.1)
-	if playing:
+	if playing and not paused:
 		round_time -= delta
 		spawn_timer -= delta
 		if rabbit and is_instance_valid(rabbit):
@@ -114,16 +116,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		pressed = true
 		screen_pos = event.position
 	elif event is InputEventKey and event.pressed and not event.echo:
-		# Keyboard fallback: Space targets the screen centre; Enter starts/restarts.
+		# Escape toggles pause; Enter starts/resumes; Space slaps the screen centre.
+		if event.keycode == KEY_ESCAPE and playing:
+			_toggle_pause()
+			get_viewport().set_input_as_handled()
+			return
 		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
 			if not playing:
 				_start_round()
-				get_viewport().set_input_as_handled()
-				return
-		elif event.keycode == KEY_SPACE and playing:
+			elif paused:
+				_resume_round()
+			get_viewport().set_input_as_handled()
+			return
+		elif event.keycode == KEY_SPACE and playing and not paused:
 			pressed = true
 			screen_pos = get_viewport().get_visible_rect().size * 0.5
-	if pressed and playing:
+	if pressed and playing and not paused:
 		_animate_slap_hand()
 		_try_slap(screen_pos)
 
@@ -241,6 +249,13 @@ func _build_hud() -> void:
 	hud_top.add_child(hud_combo)
 	hud_top.add_spacer(false)
 	hud_top.add_child(hud_time)
+	pause_button = Button.new()
+	pause_button.text = "Ⅱ"
+	pause_button.tooltip_text = "Pause / resume (Esc)"
+	pause_button.custom_minimum_size = Vector2(44, 38)
+	pause_button.focus_mode = Control.FOCUS_NONE
+	pause_button.pressed.connect(_toggle_pause)
+	hud_top.add_child(pause_button)
 	hud_progress = ProgressBar.new()
 	hud_progress.name = "RoundProgress"
 	hud_progress.min_value = 0.0
@@ -312,7 +327,7 @@ func _build_hud() -> void:
 	play_button.custom_minimum_size = Vector2(220, 58)
 	play_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	play_button.add_theme_font_size_override("font_size", 24)
-	play_button.pressed.connect(_start_round)
+	play_button.pressed.connect(_on_overlay_play_pressed)
 	overlay_panel.add_child(play_button)
 
 
@@ -712,7 +727,40 @@ func _remove_rabbit() -> void:
 	rabbit = null
 	rabbit_visual = null
 
+func _on_overlay_play_pressed() -> void:
+	if playing and paused:
+		_resume_round()
+	else:
+		_start_round()
+
+func _toggle_pause() -> void:
+	if not playing:
+		return
+	if paused:
+		_resume_round()
+	else:
+		paused = true
+		_remove_rabbit()
+		if pause_button:
+			pause_button.text = "▶"
+		_show_overlay("PAUSED", "Take a breather. Your timer and score are frozen.\nResume when you're ready.")
+		play_button.text = "▶  RESUME"
+
+func _resume_round() -> void:
+	if not playing:
+		return
+	paused = false
+	overlay.visible = false
+	if pause_button:
+		pause_button.text = "Ⅱ"
+	message_label.text = "TAP THE RABBIT!"
+	spawn_timer = maxf(spawn_timer, 0.35)
+	_update_hud()
+
 func _start_round() -> void:
+	paused = false
+	if pause_button:
+		pause_button.text = "Ⅱ"
 	score = 0
 	combo = 0
 	round_time = ROUND_SECONDS
@@ -725,6 +773,9 @@ func _start_round() -> void:
 
 func _end_round() -> void:
 	playing = false
+	paused = false
+	if pause_button:
+		pause_button.text = "Ⅱ"
 	_remove_rabbit()
 	_show_overlay("ROUND OVER!", "Score: %d\nPersonal best: %d\nTap play to try again." % [score, best])
 	play_button.text = "↻  PLAY AGAIN"
@@ -736,6 +787,8 @@ func _show_overlay(title_text: String, body_text: String) -> void:
 	play_button.text = "▶  PLAY"
 
 func _update_hud() -> void:
+	if pause_button:
+		pause_button.visible = playing
 	if hud_score:
 		hud_score.text = "SCORE  %04d" % score
 		hud_time.text = "TIME  %02d" % maxi(0, int(ceil(round_time)))
