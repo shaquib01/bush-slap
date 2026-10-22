@@ -40,16 +40,16 @@ Treat the supplied Bush Slap concept images as the visual source of truth whenev
 ## 🧭 Product principles
 
 - **Protect the working game.** Inspect existing code and deployment before editing. Avoid broad rewrites when a small change will do.
-- **Preserve deployment compatibility.** The current project is a static HTML/CSS/JavaScript app; do not assume it uses React, Vite, Next.js, or a Node build pipeline.
+- **Preserve deployment compatibility.** The root website is a Vite-built browser app. Keep its current build path working while the Godot prototype is developed separately.
 - **No invented features.** Login, cloud-saved progress, online leaderboards, cross-device profiles, and backend services are not present merely because they appear in a concept. Implement them only with a clear architecture and explicit user approval.
 - **No surprise costs.** Prefer local assets and browser-native APIs. Do not introduce paid image-generation APIs, metered services, or API keys without discussing the cost and limits first.
 - **Keep the interface responsive** and preserve current behavior unless the task explicitly calls for a change.
 
-## 🛠️ Current implementation notes
+## 🛠️ Current implementation and deployment notes
 
-The repository currently contains a root `index.html` with inline CSS and JavaScript, plus static assets referenced by absolute paths such as `/assets/jungle-backdrop.svg` and `/assets/slap-burst.svg`. The app uses Canvas for the game/hero scenes and browser `localStorage` for local personal-best and selection preferences.
+The root website contains `index.html`, static assets under `assets/`, a root `package.json` with Vite scripts, and `vercel.json` configured to run `npm run build` and publish `dist/`. Preserve this path for the existing browser game.
 
-There is currently **no root `package.json`**. That is not automatically an error: a plain static site can be served directly by Vercel without npm scripts or a package manifest. Do not add one just to make the repository look like a framework project. If build tooling is introduced later, document why and verify Vercel settings.
+The Godot 4 prototype lives separately under `godot/` on the `godot4-prototype` branch. Its Web export is generated into `godot/build/web/` by the GitHub Actions workflow; those generated files are not the same as the root Vite site's `dist/` output. **The existing Vercel deployment does not automatically serve the Godot export.** To preview Godot online, export it successfully first, then configure a separate Vercel project/deployment to publish the exported HTML, JavaScript, WebAssembly, and PCK files. Do not change the production site's root or output directory as a shortcut.
 
 ## 📁 Art references
 
