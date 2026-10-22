@@ -103,10 +103,10 @@ function buildRabbit3d(){
 function init3d(){
  if(!window.THREE||!c3)return false;
  try{
-  renderer3d=new THREE.WebGLRenderer({canvas:c3,antialias:true,alpha:false,powerPreference:'high-performance'});renderer3d.setPixelRatio(Math.min(window.devicePixelRatio||1,1.6));renderer3d.setSize(960,540,false);renderer3d.shadowMap.enabled=true;renderer3d.shadowMap.type=THREE.PCFSoftShadowMap;renderer3d.outputColorSpace=THREE.SRGBColorSpace;
+  renderer3d=new THREE.WebGLRenderer({canvas:c3,antialias:false,alpha:false,powerPreference:'low-power',failIfMajorPerformanceCaveat:false});renderer3d.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));renderer3d.setSize(960,540,false);renderer3d.shadowMap.enabled=false;renderer3d.outputColorSpace=THREE.SRGBColorSpace;
   scene3d=new THREE.Scene();scene3d.background=new THREE.Color('#64c8e9');scene3d.fog=new THREE.Fog('#64c8e9',17,43);
   camera3d=new THREE.PerspectiveCamera(66,960/540,.1,100);camera3d.position.set(0,2.65,8.3);camera3d.lookAt(0,1.25,-1);
-  scene3d.add(new THREE.HemisphereLight(0xcaf4ff,0x2a3d28,2.1));const sun=new THREE.DirectionalLight(0xfff1cf,3.1);sun.position.set(-5,10,5);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene3d.add(sun);
+  scene3d.add(new THREE.HemisphereLight(0xcaf4ff,0x2a3d28,2.1));const sun=new THREE.DirectionalLight(0xfff1cf,3.1);sun.position.set(-5,10,5);sun.castShadow=false;scene3d.add(sun);
   world3d=new THREE.Group();scene3d.add(world3d);
   box(world3d,15,.18,48,'#24563e',0,-.2,-13);
   road3d=new THREE.Group();world3d.add(road3d);
@@ -119,7 +119,7 @@ function init3d(){
   box(arms3d,.48,.5,.7,'#243c66',.82,-1.05,-2.15);box(arms3d,.36,.62,.46,'#17243a',.82,-.68,-2.2);box(arms3d,.48,.25,.5,'#ff3c91',.82,-.42,-2.2);
   box(arms3d,.6,.32,.52,'#344d70',.8,-.27,-2.22);box(arms3d,.42,.2,.38,'#e9b18b',.8,-.1,-2.2);
   rabbit3d=buildRabbit3d();resize3d();return true;
- }catch(err){console.warn('3D scene unavailable; using fallback canvas',err);return false}
+ }catch(err){console.warn('3D scene unavailable; using fallback canvas',err);const gameBox=c.parentElement;if(gameBox&&!gameBox.querySelector('.renderer-warning')){const note=document.createElement('div');note.className='renderer-warning';note.textContent='3D mode unavailable on this browser — showing compatibility mode';note.style.cssText='position:absolute;z-index:3;left:8px;right:8px;bottom:8px;padding:7px 9px;border-radius:8px;background:#090f25e8;color:#ffe14a;font:700 11px system-ui;text-align:center;pointer-events:none';gameBox.appendChild(note)}return false}
 }
 function resize3d(){if(!renderer3d||!camera3d)return;const r=c.getBoundingClientRect(),w=Math.max(1,Math.round(r.width)),h=Math.max(1,Math.round(r.height));renderer3d.setSize(w,h,false);camera3d.aspect=w/h;camera3d.updateProjectionMatrix()}
 function syncRabbit3d(dt=0){
