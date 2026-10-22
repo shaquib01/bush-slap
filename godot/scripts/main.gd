@@ -569,13 +569,26 @@ func _try_slap(screen_pos: Vector2) -> void:
 	query.collide_with_areas = true
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty() and rabbit and is_instance_valid(rabbit) and hit.collider == rabbit:
+		# Reward quick reactions and sustained streaks, while keeping the core tap mechanic simple.
 		var earned_points := 100 + combo * 15
-		score += earned_points
+		var perfect_timing := rabbit_age <= 0.48
+		if perfect_timing:
+			earned_points += 75
 		combo += 1
+		var streak_bonus := 0
+		if combo > 0 and combo % 5 == 0:
+			streak_bonus = combo * 25
+			earned_points += streak_bonus
+		score += earned_points
 		if score > best:
 			best = score
 			_save_best()
-		message_label.text = ["NICE SLAP!", "COMBO!", "BUNNY BONK!", "PERFECT!"][rng.randi_range(0, 3)]
+		if perfect_timing:
+			message_label.text = "PERFECT TIMING! +75"
+		elif streak_bonus > 0:
+			message_label.text = "STREAK BONUS! +%d" % streak_bonus
+		else:
+			message_label.text = ["NICE SLAP!", "COMBO!", "BUNNY BONK!", "CLEAN HIT!"][rng.randi_range(0, 3)]
 		_spawn_voxel_burst(rabbit.position + Vector3(0, 1.25, 0))
 		_spawn_score_popup(rabbit.position + Vector3(0, 2.25, 0), earned_points)
 		_play_hit_feedback()
